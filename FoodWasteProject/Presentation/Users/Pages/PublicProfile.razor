@@ -1,0 +1,98 @@
+﻿@*
+    CD-US-3.2 Share personal user information in public profile
+    As a registered personal user I want to share my account information in a public profile so that other users of the platform can know my information.    Collaborators:
+    - Álvaro Miranda
+    - Nathan Miranda
+    - Mariana Murillo
+    - Emmanuel Zúñiga
+
+    This Blazor page displays the user information, for this the user's email is used to obtain the data from the database
+    subsequently each text field is updated with the user data
+*@
+
+@page "/PublicProfile/{hashedEmail}"
+
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Application.Users
+@using Application.Users.Implementations
+@using Domain.Core.Exceptions
+@using Domain.Core.Helpers
+@using Domain.Core.ValueObjects
+@using Domain.Users.Repositories
+@using Domain.Users.Entities
+@using Presentation.Core.Components
+@using Presentation.Core.Layout
+@using Presentation.Users.Models
+
+@inject IUserService UserService
+@inject IClientService ClientService
+@inject NavigationManager Nav
+
+@*User information container*@
+<div class="container">
+    <Loading IsLoading="_isLoading">
+        @if (_clientUser is null)
+        {
+            <h4 class="text-danger">El perfil del usuario ingresado no existe.</h4>
+        }
+        else
+        {
+            <MudContainer Class="align-self-center py-4 flex-1 mt-14" MaxWidth="MaxWidth.Medium">
+                <MudPaper Class="d-flex pa-4 mb-2 flex-wrap gap-x-8 gap-y-4 justify-center" Elevation="6">
+                    <MudGrid Class="mx-auto pa-12" Justify="Justify.Center">
+                        <MudText Typo="Typo.h3">🍕   @_clientUser.UserName  🍗</MudText>
+                    </MudGrid>
+                    @*Container for the Profile Picture and the user basic information*@
+                    <MudContainer Class="d-flex flex-nowrap gap-4 pb-12">
+                        @*Container for the Profile Picture*@
+                        <MudContainer Class = "justify-center gap-x-15 ml-15">
+                            <MudAvatar Image="@_clientUser.Profile_Picture" Style = "height: 200px; width: 200px"/>
+                        </MudContainer>
+                        @*Container for the user basic information*@
+                        <MudContainer Class = "mr-13">
+
+                            <!--User UserName-->
+
+                            <MudStack Justify="Justify.Center" Spacing="0">
+                                <MudText Class="mt-2" Typo="Typo.h6">Nombre de Usuario</MudText>
+                                <MudPaper Class="mb-2 pa-3" Style = "width:350px">@_clientUser.UserName</MudPaper>
+                            </MudStack>
+
+                            <!--User Location-->
+
+                            <MudStack Justify="Justify.Center" Spacing="0">
+                                <MudText Typo="Typo.h6">Ubicación</MudText>
+                                <MudPaper Class="pa-3" Style = "width:350px">@_clientUser.Town, @_clientUser.District, @_clientUser.Province</MudPaper>
+                            </MudStack>
+                        </MudContainer>
+                    </MudContainer>
+                </MudPaper>
+            </MudContainer>
+        }
+    </Loading>
+</div>
+
+
+@code {
+    [Parameter]
+    public string? hashedEmail { get; set; }
+    private string email {get; set;}
+    private bool _isLoading = true;
+    Client? _clientUser;
+
+    //Initialize page
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPersonalUser();
+        _isLoading = false;
+    }
+
+    //Gets the Personal User from the database, the user data is loaded from the email.
+    public async Task LoadPersonalUser()
+    {
+        User _user = await UserService.GetUserByHashedEmail(hashedEmail);
+        email = _user.Email;
+        _clientUser = await ClientService.GetClientByEmail(email);
+    }
+}

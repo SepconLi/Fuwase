@@ -1,0 +1,50 @@
+﻿@*
+-Los Macacos
+
+Collaborators:
+- Josher Ramirez
+- Sirlany Mora
+- Aaron Campos
+- Estefany Ramirez
+- David Rojas
+
+- Summary: component that displays information about the donor.
+*@
+
+
+<link href="/css/components/Card.css" rel="stylesheet" />
+@if (!DonatorName.Equals("Anonimo")) {
+    <div class="card" style="width:70%;display: block;margin-left: auto;margin-right:auto;"> 
+        <div style="padding-left: 25px; width:100%">
+            <h3 style="margin-left:25px; margin-top: 2%"><b>Información del Donador</b></h3>
+            <div style="padding: 10px;">
+                <MudText Style="margin-left:2%; margin-bottom: 1%;">Nombre del Donador: @DonatorName</MudText>
+                <MudHidden Invert="@showButton">
+                    <MudExpansionPanels MultiExpansion="true" Style="margin-left:2%">
+                        <MudExpansionPanel Text="Contacto donador">
+                            <div style="display:flex; flex-direction:row;">
+                                <MudButton Class="ml-0" Variant="Variant.Filled"
+                                Color="Color.Info" >Perfil
+                                </MudButton>
+                                <MudButton Class="ml-8" Variant="Variant.Filled"
+                                Color="Color.Info" >Chat
+                                </MudButton>
+                            </div>
+                        </MudExpansionPanel>
+                    </MudExpansionPanels>
+                </MudHidden>
+            </div>
+        </div>	
+     </div>
+}
+
+
+@code {
+    // TODO: Check null safety in Name, Expiration, Quantity and Brand 
+    [Parameter]
+    public string? DonatorName { get; set; }
+    [Parameter]
+    public string? Image { get; set; }
+    [Parameter]
+    public bool showButton { get; set; } = true;
+}

@@ -1,0 +1,157 @@
+﻿@*
+    CD-US-1.6 Business' Information
+ * Collaboratos:
+ * - Álvaro Miranda
+ * - Nathan Miranda
+ * - Mariana Murillo
+ * - Emmanuel Zúñiga
+ * 
+ * - Summary: bussienss user form component
+
+*@
+
+@*/* CD-US-1.5 Personal User Information
+ * Collaboratos:
+ * - Álvaro Miranda
+ * - Nathan Miranda
+ * - Mariana Murillo
+ * - Emmanuel Zúñiga
+ * 
+ * - Summary:personal user information 
+ */*@
+
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Application.Users
+@using Application.Users.Implementations
+@using Domain.Core.Exceptions
+@using Domain.Core.Helpers
+@using Domain.Core.ValueObjects
+@using Domain.Users.Repositories
+@using Domain.Users.Entities
+@using Presentation.Core.Components
+@using Presentation.Core.Layout
+@using Presentation.Users.Models
+@using Presentation.Users.Components
+
+<link href="/css/components/InputStandard.css" rel="stylesheet" />
+
+<!--BusinessUserInfo_Form-->
+<!-- Business Name -->
+
+<MudTextField Style=@($"--mud-palette-primary:{Colors.Blue.Accent3};") Class="InputStandard"  T="string" Label="Nombre de la empresa" HelperText="Ingrese el nombre de la empresa, ejemplo: Food Waste UCR" Required="true" RequiredError="¡Nombre de la empresa requerido!"
+              Validation="@(new Func<string, IEnumerable<string>>(validStringInput))"  @bind-Value="businessName" TextChanged="HandleSubmit"/>
+
+<!--    legal document Input        -->
+<MudTextField Style=@($"--mud-palette-primary:{Colors.Blue.Accent3};") Class="InputStandard" T="string" Label="Cédula jurídica" HelperText="Ingrese su cédula jurídica, ejemplo: 3111999999 (10 números)" Required="true" RequiredError="¡Cédula jurídica requerida!" @ref="idField"
+              Validation="@(new Func<string, IEnumerable<string>>(ValidIdNumber))" @bind-Value="legalDocument" TextChanged="HandleSubmit"/>
+
+<!-- Name of the person in charge -->
+
+<MudTextField Style=@($"--mud-palette-primary:{Colors.Blue.Accent3};") Class="InputStandard" T="string" Label="Nombre de la persona encaregada" HelperText="Ingrese el nombre de la persona encargado" Required="true" RequiredError="¡Nombre de la persona encargada requerido!"
+              Validation="@(new Func<string, IEnumerable<string>>(validStringInput))" @bind-Value="personInCharge" TextChanged="HandleSubmit"/>
+
+
+
+
+@code {
+    //----------    Variables ----------
+    public string? businessName { get; set; } = null!;
+    public string? personInCharge { get; set; } = null!;
+    public string? legalDocument { get; set; } = null!;
+    public DateTime allienceStart;
+
+
+    private BusinessUserModel Model = new();
+
+
+    [Parameter]
+    public EventCallback<BusinessUserModel> OnValidSubmit { get; set; }
+
+    /// <summary>
+    /// handles the user submit for the name, last name and identification
+    /// </summary>
+    /// <returns></returns>
+    /// 
+    private Task HandleSubmit()
+    {
+        if (businessName != null && personInCharge != null && legalDocument != null)
+        {
+            Model.Business_Name = businessName;
+            Model.Person_In_Charge = personInCharge;
+            Model.Legal_Document = legalDocument;
+            return OnValidSubmit.InvokeAsync(Model);
+        }
+        else
+        {
+            return OnValidSubmit.InvokeAsync(null);
+        }
+
+    }
+
+
+    MudTextField<string> idField;
+
+    /// <summary>
+    /// finds out if the string input has the requirements
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    private IEnumerable<string> validStringInput(string str)
+    {
+        if (string.IsNullOrWhiteSpace(str))
+        {
+            yield return "Este campo es requerido!";
+            yield break;
+        }
+        if (Regex.IsMatch(str, @"[0-9]"))
+            yield return "No debe de ingresar números.";
+        if (Regex.IsMatch(str, @"[!@#$%^&*()_+=\[{\]};:<>|/?,-]"))
+            yield return "No debe de ingresar símbolos.";
+    }
+
+    /// <summary>
+    /// validates if the last name complies the requirments
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    private IEnumerable<string> validStringInput2(string str)
+    {
+        if (string.IsNullOrWhiteSpace(str))
+        {
+            yield return "El nombre de la persona a cargo es requerido!";
+            yield break;
+        }
+        if (Regex.IsMatch(str, @"[0-9]"))
+            yield return "No debe de ingresar números.";
+        if (Regex.IsMatch(str, @"[!@#$%^&*()_+=\[{\]};:<>|./?,-]"))
+            yield return "No debe de ingresar símbolos.";
+    }
+
+
+    /// <summary>
+    /// validates if the id input complies the requirements
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    private IEnumerable<string> ValidIdNumber(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            yield return "La identificación es requerida!";
+            yield break;
+        }
+        if (id.Length < 10)
+            yield return "Debe ingresar un número con al menos 10 digitos.";
+        if (id.Length > 10)
+            yield return "Debe ingresar un número con no más de 10 digitos";
+        if (Regex.IsMatch(id, @"[A-Z]"))
+            yield return "Sólo debe ingresar números.";
+        if (Regex.IsMatch(id, @"[a-z]"))
+            yield return "Sólo debe ingresar números.";
+        if (!Regex.IsMatch(id, @"[0-9]"))
+            yield return "No ingresó números.";
+        if (Regex.IsMatch(id, @"[!@#$%^&*()_+=\[{\]};:<>|./?,-]"))
+            yield return "No debe contener símbolos.";
+    }
+}

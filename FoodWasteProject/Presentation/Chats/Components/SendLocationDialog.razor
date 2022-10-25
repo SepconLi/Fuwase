@@ -1,0 +1,70 @@
+﻿@* /*
++-Los Macacos
++
++Collaborators:
++-Josher Ramirez
++-Sirlany Mora
++-Aaron Campos
++-Estefany Ramirez
++-David Rojas
++
++-Summary: Component that edits the map.
++*/*@
+
+@using MudBlazor
+@using GoogleMapsComponents
+@using GoogleMapsComponents.Maps
+@using GoogleMaps.LocationServices;
+
+<MudDialog>
+    <DialogContent>
+        <div style="height:500px; width:500px; position:relative">
+		<GoogleMap @ref="@map1" Id="map1" Options="@mapOptions" Height="100%"></GoogleMap>
+		<div style="position:absolute;  top: 50%;left: 50%;">
+			<img style="z-index:2" src="https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"/>
+		</div>
+    </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Info" OnClick="AddMarker">Enviar esta ubicación</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+	[CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+	void Submit() => MudDialog.Close(DialogResult.Ok(true));
+	void Cancel() => MudDialog.Cancel();
+
+
+	private GoogleMap map1;
+	private MapOptions mapOptions;	
+
+
+	protected override void OnInitialized()
+	{
+		var latitude = 9.93419113532175;
+		var longitude = -84.08416346064448;
+
+
+		mapOptions = new MapOptions()
+		{
+			Zoom = 13,
+			Center = new LatLngLiteral()
+			{
+				Lat = latitude,
+				Lng = longitude
+			},
+			MapTypeId = MapTypeId.Roadmap
+		};
+	}
+
+	public async Task<string> AddMarker()
+	{
+		var center = await map1.InteropObject.GetCenter();
+		string message = "[Location]" + center.Lat+";"+center.Lng;
+		MudDialog.Close(DialogResult.Ok(message));
+		return message;
+	}
+}

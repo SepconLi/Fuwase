@@ -1,0 +1,123 @@
+﻿@*
+-Los Macacos
+
+Collaborators:
+- Josher Ramirez
+- Sirlany Mora
+- Aaron Campos
+- Estefany Ramirez
+- David Rojas
+
+- Summary: This Blazor page displays the list of donation requests that a donor has
+*@
+@using Application.Authentication
+@using MudBlazor
+@using Presentation.Orders.Components
+@using Domain.Orders.Entities
+@using Domain.Donations.DTOs
+@using Domain.Orders.DTOs
+@using Domain.Users.Entities
+@using System.Globalization;
+@using Application.Orders
+@using Application.Donations
+@using Application.Users
+@using System
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject IOrderService OrderService
+@inject IDonationService Service
+@inject IAuthenticationService AuthenticationService
+@inject IPersonalUserService PersonalUserService
+
+@page "/RequestList"
+
+<PageTitle>Lista de solicitudes</PageTitle>
+
+@if (_isLoading)
+{
+	<LoadingCardsComponent></LoadingCardsComponent>
+}
+else
+{
+	<div class="text-center">
+        <h1 style="margin-top:20px">Tus Solicitudes</h1>
+    </div>
+	<AuthorizeView Context="Account">
+		<Authorized>
+			@if (_orders == null)
+			{
+				<h4 class="text-danger">There are no stock currently registered.</h4>
+			}else{
+				
+				@foreach (var order in _orders)
+				 {
+					@if (order.DonorId.Equals(actualUser))
+					{
+						<DonationRequest RecipientName=@getNameByEmail(order.RecipientId) order=order></DonationRequest>
+					}
+			
+				 }
+			}
+		</Authorized>
+			
+		<Authorizing>
+			<LoadingCardsComponent></LoadingCardsComponent>
+		</Authorizing>
+		 <NotAuthorized>
+			<MudAlert Severity="Severity.Warning">Debes estar registrado para ver tus solicitudes</MudAlert>
+		 </NotAuthorized>
+	</AuthorizeView>
+}
+   
+@code {
+	private bool _isLoading = true;
+	private string? actualUser = null;
+
+
+	private IEnumerable<Order?> _orders;
+	private IList<InformacionDTO>? _userInformation;
+    private IList<InformacionDTO>? _userBusinessInformation;
+
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		_orders = await OrderService.GetOrderAsync();
+
+		await getActualUser();
+
+		_userInformation = await OrderService.getInformationPersonalAsync();
+        _userBusinessInformation = await OrderService.getInformationBusinessAsync();
+        _userInformation.Concat(_userBusinessInformation);
+
+		_isLoading = false;
+	}
+
+	private async Task<PersonalUser?> getRecipientName(string recipientEmail)
+	{
+		///<summary>
+		/// It is in charge of obtaining the user object of the beneficiary given the email
+		///</summary>
+		/// <param name="recipientEmail"></param>
+
+		await AuthenticationService.GetValueAsync();
+		return await PersonalUserService.GetPersonalUserByEmail(recipientEmail);
+	}
+
+	public async Task getActualUser()
+    {
+		///<summary>
+		/// It is responsible for obtaining the logged in user
+		///</summary>
+        await AuthenticationService.GetValueAsync();
+        actualUser = await AuthenticationService.GetLoggedUserEmail();
+		Console.WriteLine("AU: "+actualUser);
+    }
+
+	private string? getNameByEmail(string email)
+	{
+		return OrderService.getInformationByEmail(email, _userInformation).Result; 
+	}
+
+
+}

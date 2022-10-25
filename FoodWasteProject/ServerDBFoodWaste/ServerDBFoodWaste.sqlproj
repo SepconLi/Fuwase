@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>ServerDBFoodWaste</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{25fbcbf8-2d5a-4e3f-9767-a57c5446a619}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>ServerDBFoodWaste</RootNamespace>
+    <AssemblyName>ServerDBFoodWaste</AssemblyName>
+    <ModelCollation>1033,CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="Tables" />
+    <Folder Include="PostDeploymentScripts" />
+    <Folder Include="StoredProcedures" />
+    <Folder Include="Triggers" />
+    <Folder Include="Functions" />
+    <Folder Include="Indexes" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="Tables\Product.sql" />
+    <Build Include="Tables\Donation.sql" />
+    <Build Include="Tables\Campaign.sql" />
+    <Build Include="Tables\Restriction.sql" />
+    <Build Include="Tables\Orders.sql" />
+    <Build Include="Tables\_User.sql" />
+    <Build Include="Tables\Personal_User.sql" />
+    <Build Include="Tables\Client.sql" />
+    <Build Include="Tables\Province.sql" />
+    <Build Include="Tables\District.sql" />
+    <Build Include="Tables\Town.sql" />
+    <Build Include="Tables\AllergenCategory.sql" />
+    <Build Include="Tables\Allergen.sql" />
+    <Build Include="Tables\ConfirmationCode.sql" />
+    <Build Include="StoredProcedures\SetProductQuantity.sql" />
+    <Build Include="StoredProcedures\ClearDonation.sql" />
+    <Build Include="StoredProcedures\ClearProductsFromDonation.sql" />
+    <Build Include="StoredProcedures\GetAvailableProducts.sql" />
+    <Build Include="StoredProcedures\GetProductsFromOrder.sql" />
+    <Build Include="StoredProcedures\getConfirmationCode.sql" />
+    <Build Include="StoredProcedures\addConfirmationCode.sql" />
+    <Build Include="Tables\Achievement.sql" />
+    <Build Include="Tables\Administrator.sql" />
+    <Build Include="Tables\Business_User.sql" />
+    <Build Include="Tables\UserPreferences.sql" />
+    <Build Include="Tables\Message.sql" />
+    <Build Include="Tables\ProductType.sql" />
+    <Build Include="Tables\FoodType.sql" />
+    <Build Include="StoredProcedures\getCountys.sql" />
+    <Build Include="StoredProcedures\getDistricts.sql" />
+    <Build Include="Tables\UserPreferences.sql" />
+    <Build Include="Tables\OrderProduct.sql" />
+    <Build Include="Tables\Business_User.sql" />
+    <Build Include="Triggers\Check_Personal_User.sql" />
+    <Build Include="Triggers\Check_Business_Account.sql" />
+    <Build Include="Triggers\Check_Confirmation_Code.sql" />
+    <Build Include="StoredProcedures\getProvinces.sql" />
+    <Build Include="StoredProcedures\SetDonationStatus.sql" />
+    <Build Include="Functions\AreAllProductsDonated.sql" />
+    <Build Include="StoredProcedures\deleteAllRestrictionsPreferences.sql" />
+    <Build Include="Indexes\HASHEDEMAIL_INDEX.sql" />
+    <Build Include="StoredProcedures\insertNewUserPreference.sql" />
+    <Build Include="Tables\RedirectInformation.sql" />
+    <Build Include="Tables\CampaignProduct.sql" />
+    <Build Include="StoredProcedures\UpdateQuantityForRejectOrder.sql" />
+    <Build Include="Functions\IsCompleteDonation.sql" />
+    <Build Include="Tables\Statistic.sql" />
+    <Build Include="Triggers\Statistics_Update.sql" />
+    <Build Include="Triggers\Top_Business_Update.sql" />
+    <Build Include="Triggers\New_User_Statistics.sql" />
+    <Build Include="StoredProcedures\GetTotalAppDonations.sql" />
+    <Build Include="StoredProcedures\GetDonationsMade.sql" />
+    <Build Include="StoredProcedures\GetOrdersMade.sql" />
+    <Build Include="StoredProcedures\GetDonatedWeight.sql" />
+    <Build Include="StoredProcedures\GetTopBusinessDonors.sql" />
+    <Build Include="StoredProcedures\GetProvincesStats.sql" />
+    <Build Include="Tables\Notification.sql" />
+    <Build Include="StoredProcedures\GetCampaignDonationAmount.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="ServerDBFoodWaste.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="Tables\Donation.sql" />
+    <Build Include="Tables\Product.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="PostDeploymentScripts\Script.PostDeployment1.sql" />
+  </ItemGroup>
+</Project>

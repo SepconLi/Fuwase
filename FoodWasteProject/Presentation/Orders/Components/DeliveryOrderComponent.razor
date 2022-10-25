@@ -1,0 +1,174 @@
+﻿@*
+-Los Macacos
+
+Collaborators:
+- Josher Ramirez
+- Sirlany Mora
+- Aaron Campos
+- Estefany Ramirez
+- David Rojas
+
+- Summary: Component that shows us that the status of the donation was sent to the recipient.
+*@
+@using Domain.Orders.Entities
+@using Application.Orders
+@using Application.Authentication;
+@using Application.Users;
+@using Application.Notifications.Implementation;
+@using Application.Notifications;
+@using Domain.Notifications.Entities;
+
+@inject IDialogService DialogService
+@inject IOrderService OrderService
+@inject IAuthenticationService AuthenticationService
+@inject IClientService ClientService
+@inject INotificationService NotificationService
+
+<link href="/css/components/Card.css" rel="stylesheet" />
+
+<center>
+
+         <h4 style="padding:10px;">¿Se completó la donación?</h4>
+
+         <div style="padding: 10px;">
+            <MudButton OnClick="@DonationFulfilled"Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Done" Color="Color.Success">Si</MudButton>
+            <MudButton OnClick="@DonationNotFulfilled"Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error">No</MudButton>
+        </div>
+</center>
+
+
+@code{
+    Order _order;
+    string UserEmail;
+
+    [Parameter]
+    public int orderId { get; set; }
+    [Parameter]
+    public string recipedName { get; set; } = "";
+
+    private string _deliveryText { get; set; } = "";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        _order = await OrderService.GetOrderByIdAsync(orderId);
+        await AuthenticationService.GetValueAsync();
+        UserEmail = await AuthenticationService.GetLoggedUserEmail();
+    }
+
+    // Completes a Request
+    private async Task CompleteRequest()
+    {
+        _order.OrderStatus = "F";
+        await OrderService.CompleteOrderAsync(_order);
+
+        var notification = new Notification(_order.DonorId, "La donación ha finalizado.", "/requestDetails/" + _order.Id, false, DateTime.Now);
+        await NotificationService.addNotification(notification);
+
+        notification = new Notification(_order.RecipientId, "La donación ha finalizado.", "/requestDetails/" + _order.Id, false, DateTime.Now);
+        await NotificationService.addNotification(notification);
+
+        Console.WriteLine("Finalizada");
+        DialogService.Show<DeliveryAccept>("Donacion Completada");
+
+    }
+    // Cancels a Request
+    private async Task CancelRequest()
+    {
+        _order.OrderStatus = "F";
+        await OrderService.RejectOrderAsync(_order);
+        Console.WriteLine("Finalizada");
+        DialogService.Show<DeliveryCancel>("Donacion no entregada");
+
+    }
+    //Handles if the user clicks that they have completed the donation
+    private async Task DonationFulfilled()
+    {
+        if (UserEmail.Equals(_order.DonorId))
+        {
+            if(_order.OrderStatus == "b")
+            {
+                await ClientService.addStrikeAsync(_order.DonorId);
+                await CancelRequest();            
+            }
+            else
+            {
+                if(_order.OrderStatus == "B")
+                {
+                    await CompleteRequest();
+
+                }
+                else
+                {
+                    _order.OrderStatus = "D";
+                    await OrderService.ModifyOrderAsync(_order);   
+                }
+            }
+        }
+        else
+        {
+            if(_order.OrderStatus == "d")
+            {
+                await ClientService.addStrikeAsync(_order.DonorId);
+                await CancelRequest();
+            }
+            else
+            {
+                if(_order.OrderStatus == "D")
+                {
+                    await CompleteRequest();
+                    
+                }
+                else
+                {
+                    _order.OrderStatus = "B";
+                    await OrderService.ModifyOrderAsync(_order);   
+                }
+            }
+        }
+    }
+    //Handles if the user clicks that they have not completed the donation
+    private async Task DonationNotFulfilled()
+    {
+        if (UserEmail.Equals(_order.DonorId))
+        {
+            if(_order.OrderStatus == "B")
+            {
+                await ClientService.addStrikeAsync(_order.DonorId);
+                await CancelRequest();
+            }
+            else
+            {
+                if(_order.OrderStatus == "b")
+                {
+                    await CancelRequest();
+                }
+                else
+                {
+                    _order.OrderStatus = "d";
+                    await OrderService.ModifyOrderAsync(_order);
+                }
+            }
+        }
+        else
+        {
+            if(_order.OrderStatus == "D")
+            {
+                await ClientService.addStrikeAsync(_order.DonorId);
+                await CancelRequest();
+            }
+            else
+            {
+                if (_order.OrderStatus == "d")
+                {
+                    await CancelRequest();
+                }
+                else
+                {
+                    _order.OrderStatus = "b";
+                    await OrderService.ModifyOrderAsync(_order);
+                }
+            }
+        }
+    }
+ }

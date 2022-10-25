@@ -1,0 +1,159 @@
+﻿<!--
+This document is for the US: ALV-DO-2.1 Summary for each active donations 
+    and was done by Milen Rodriguez of ALV.
+-->
+@page "/history"
+
+@using Domain.Donations.DTOs
+@using Domain.Donations.Entities
+@using Application.Donations
+@using Application.Products
+@using Presentation.Donations.Components
+@using Application.Authentication
+
+@inject IAuthenticationService AuthenticationService
+@inject IDonationService DonationService
+@inject IProductService ProductService
+
+<div style="text-align: center; margin: 20px 0px 20px 0px;">
+    <h2>Historial de donaciones</h2>
+</div>
+
+@if (_isLoading)
+{
+    <MudSkeleton SkeletonType="SkeletonType.Rectangle"
+        Animation="Animation.Wave" Width="700px" Height="600px" />
+}
+else
+{
+    <div style="text-align: center; margin: 0px 0px 20px 0px;">
+        <MudButtonGroup Variant="Variant.Text">
+            <MudButton @onclick="ShowAll">
+                @if (_showing == _allDonations){
+                    <b>Todas (@totalDonations)</b>
+                }else
+                {
+                    <span>Todas(@totalDonations)</span>
+                }
+            </MudButton>
+            <MudButton @onclick="ShowActive">
+                @if (_showing == _activeDonations){
+                    <b>Activas (@totalActive)</b>
+                }else
+                {
+                    <span>Activas (@totalActive)</span>
+                }
+                </MudButton>
+            <MudButton @onclick="ShowPast">
+                @if (_showing == _pastDonations){
+                    <b>Terminadas (@totalPast)</b>
+                }else
+                {
+                    <span>Terminadas (@totalPast)</span>
+                }
+                </MudButton>
+        </MudButtonGroup>
+    </div>
+
+    @if (_showing.Length() == 0){
+        <center>
+            <h3>
+                No se encontraron donaciones en esta seccion.
+            </h3>
+        </center>
+    } else
+    {
+        @* Passdown to see details of a specific donation *@
+        @foreach (var donation in _showing)
+        {
+            <center>
+            <DonationCard
+                Id=donation.Id Description=@(donation.Description) 
+                CreationDate=@(donation.CreationDate) Activate=@true
+                Status=@donation.Status
+                ProductsCount=@(donation.Products.Length())
+            ></DonationCard>
+            </center>
+        }  
+    }
+}
+
+@code {
+    // Declaring boolean values
+    private bool _isLoading = true;
+
+    // Declaring other variables
+    public string UserId { get; set; }
+    private int totalDonations = 0;
+    private int totalActive = 0;
+    private int totalPast = 0;
+
+    private List<DonationDTO>? _allDonations;
+    private List<DonationDTO>? _activeDonations = new List<DonationDTO>();
+    private List<DonationDTO>? _pastDonations = new List<DonationDTO>();
+    private List<DonationDTO>? _showing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMyDonations();
+        _isLoading = false;
+    }
+
+    private async Task LoadMyDonations()
+    {
+        UserId = await getActualUser();
+        IEnumerable<DonationDTO>? list = 
+            await DonationService.GetDonationsByUserId(UserId);
+        _allDonations = list.ToList();
+        totalDonations = _allDonations.Length();
+        _allDonations.ToList();
+        _showing = _allDonations;
+        FilterDonations();
+    }
+
+    private async Task<string?> getActualUser() {
+        await AuthenticationService.GetValueAsync();
+        return await AuthenticationService.GetLoggedUserEmail();
+    }
+
+    // Filters active and past donations
+    private void FilterDonations()
+    {
+        foreach(var donation in _allDonations)
+        {
+            if (donation.Status == "A" || donation.Status == "P")
+            {
+                DonationDTO copy = new DonationDTO 
+                    (donation.Id,donation.DonorId, donation.Status
+                        , donation.CreationDate, donation.Products.ToList()
+                        , donation.Description );
+                _activeDonations.Add(copy);
+            } else
+            {
+                DonationDTO copy = new DonationDTO 
+                    (donation.Id,donation.DonorId, donation.Status
+                        , donation.CreationDate, donation.Products.ToList()
+                        , donation.Description );
+                _pastDonations.Add(copy);
+            }
+        }
+        totalActive = _activeDonations.Length();
+        totalPast = _pastDonations.Length();
+    }
+    // If user wants to see all donations
+    private void ShowAll()
+    {
+        _showing = _allDonations;   
+    }
+
+    // If user wants to see only the active donations
+    private void ShowActive()
+    {
+        _showing = _activeDonations;
+    }
+    // If user wants to see only the past donations
+    private void ShowPast()
+    {
+        _showing = _pastDonations;
+    }
+}

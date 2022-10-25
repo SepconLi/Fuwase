@@ -1,0 +1,185 @@
+﻿@*
+    CD-US-2.2 Forgot my password and CD-US-1.8 Verify Email - Core Dummpers
+
+    Collaborators:
+    - Álvaro Miranda
+    - Nathan Miranda
+    - Mariana Murillo
+    - Emmanuel Zúñiga
+
+    This Blazor page displays a form that allows the user to enter their
+    email address to be sent a confirmation code.
+*@
+@page "/enter-email"
+
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Application.Users
+@using Application.Users.Implementations
+@using Domain.Core.Exceptions
+@using Domain.Core.Helpers
+@using Domain.Core.ValueObjects
+@using Domain.Users.Repositories
+@using Domain.Users.Entities
+@using Application.Utilities
+@using Application.Utilities.Implementations
+@using Domain.Utilities.Entities
+@using Presentation.Core.Components
+@using Presentation.Core.Layout
+@using Presentation.Users.Models
+
+@inject IUserService UserService
+@inject IConfirmationCodeService ConfirmationCodeService
+@inject IRedirectInformationService RedirectInformationService
+@inject IMailService MailService
+@inject NavigationManager NavManager
+@inject ISnackbar Snackbar
+
+<link href="/css/components/InputStandard.css" rel="stylesheet" />
+
+<MudGrid Justify="Justify.Center" Class="mt-16 d-flex align-center justify-center">
+    <MudItem xs="5" sm="7">
+        <MudPaper Class="pa-4">
+            <MudForm @ref="form" @bind-IsValid="@success">
+
+
+                <!--    tittle  -->
+                <MudText Class="pt-10 mb-10" Typo="Typo.h4">Ingresa tu correo electrónico</MudText>
+
+                <!--    Email   -->
+                <MudTextField Style=@($"--mud-palette-primary:{Colors.Blue.Accent3};") Class="InputStandard" T="string" Label="Ingrese el correo electrónico que utilizó para registrarse:" HelperText="example@email.com" Required="true" RequiredError="Correo electrónico requerido!" @bind-Value="entered_email"
+                              Validation="@(new EmailAddressAttribute() {ErrorMessage = "Correo electrónico es inválido"})" />
+                
+                <div class="d-flex align-center justify-space-between mt-6 pb-10">
+                    <MudButton Disabled="@_processing" OnClick="ProcessRequest" Variant="Variant.Filled" Class="ml-auto blue darken-1 text-white">
+                        @if (_processing)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                            <MudText Class="ms-2">Procesando</MudText>
+                        }
+                        else
+                        {
+                            <MudText>Siguiente</MudText>
+                        }
+                    </MudButton>
+                </div>
+            </MudForm>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+@code {
+
+    String entered_email = "";
+    bool success;
+    string[] errors = { };
+    MudForm form;
+    private string? _doesNotExistMessage = null;
+    public bool _isOpen;
+    private bool _processing = false;
+    User? user;
+
+    /// <summary>
+    /// button process request
+    /// </summary>
+    /// <returns></returns>
+    async Task ProcessRequest()
+    {
+        _processing = true;
+        await HandleUserSubmit();
+        await Task.Delay(2000);
+        _processing = false;
+    }
+
+    /// <summary>
+    /// handles the user submit of the request
+    /// </summary>
+    /// <returns></returns>
+    private async Task HandleUserSubmit()
+    {
+        if (entered_email != "")
+        {
+            //Request the user with the email address entered.
+            user = await UserService.GetUserByEmail(entered_email);
+            if (user == null)
+            {
+                _doesNotExistMessage = "No existe un usuario registrado con ese correo electrónico";
+                Snackbar.Add(_doesNotExistMessage, Severity.Error);
+            }
+            else
+            {
+                if (user.Status == 2)
+                {
+                    RedirectInformation? info = await RedirectInformationService.GetRedirectInformationByEmail(user.Email);
+                    if (info != null)
+                    {
+                        if (!info.VerifyExpirationDate())
+                        {
+                            string link = "/confirmation-code/" + user.HashedEmail;
+                            //Redirects to the next step.
+                            NavManager.NavigateTo(link);
+                        }
+                        else
+                        {
+                            await RedirectInformationService.DeleteRedirectInformation(info);
+                            ConfirmationCode? code = await ConfirmationCodeService.GetCodeByEmail(user.Email);
+                            await SendEmail(code);
+                            Snackbar.Add("Se ha enviado un código de confirmación al correo ingresado.", Severity.Success);
+                        }
+                    }
+                    else
+                    {
+                        ConfirmationCode? code = await ConfirmationCodeService.GetCodeByEmail(user.Email);
+                        if (code != null)
+                        {
+                            await SendEmail(code);
+                            Snackbar.Add("Se ha enviado un código de confirmación al correo ingresado.", Severity.Success);
+                        }
+                    }
+
+                }
+                else if (user.Status == 1)
+                {
+                    //Delete existing codes for that user
+                    await ConfirmationCodeService.DeleteCodeForEmail(entered_email);
+                    //Generate random code
+                    Random confirmationCode = new Random();
+                    int _confirmationCode = confirmationCode.Next(100000, 1000000);
+                    ConfirmationCode code = new ConfirmationCode(entered_email, _confirmationCode);
+                    //Add Confirmation Code to DB
+                    await ConfirmationCodeService.AddConfirmationCode(code);
+                    //Send Email with code
+                    await SendEmail(code);
+                    string link = "/confirmation-code/" + user.HashedEmail;
+                    //Redirects to the next step.
+                    NavManager.NavigateTo(link);
+                    Snackbar.Add("Se ha enviado un código de confirmación al correo ingresado.", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Add("Su cuenta está a la espera de que un administrador la verifique. Se le notificará por correo cuando sea activada.", Severity.Info);
+                }
+            }
+        }
+        else
+        {
+            _doesNotExistMessage = "Por favor, ingrese su correo electrónico";
+            Snackbar.Add(_doesNotExistMessage, Severity.Error);
+        }
+
+
+    }
+
+    private async Task SendEmail(ConfirmationCode code)
+    {
+        RedirectInformation info = new RedirectInformation("confirmation-code/",entered_email,user.HashedEmail);
+        await RedirectInformationService.AddRedirectInformationAsync(info);
+        string link = "http://10.1.4.119/redirect/"+info.Hash;
+        string subject = "Food Waste: Código de recuperación de contraseña";
+        string msg1 = "Estimado/a usuario: \nTu código de confirmación para restaurar tu contraseña es: " + code.Code +
+            ". \n\nPuedes continuar con el proceso de recuperación de contraseña ingresando al siguiente link: "+link;
+        string msg2 = "Estimado/a usuario: <br>Tu código de confirmación para restaurar tu contraseña es: " + code.Code+
+            ". <br><br>Puedes continuar con el proceso de recuperación de contraseña ingresando al siguiente link: <a href="+link+"> Recuperar contraseña </a>";
+        await MailService.SendEmailAsync(entered_email, subject, msg1, msg2);
+    }
+
+}

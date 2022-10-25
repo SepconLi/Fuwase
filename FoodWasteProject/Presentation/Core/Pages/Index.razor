@@ -1,0 +1,72 @@
+﻿@page "/"
+@using System
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using System.Security.Claims
+@inject IJSRuntime JS;
+@inject IDialogService DialogService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ProtectedLocalStorage ProtectedLocalStorage
+
+@code {
+    private void DialogMision()
+    {
+		var options = new DialogOptions { CloseOnEscapeKey = true };
+        DialogService.Show<DialogMision>("Nuestra Misión", options);
+    }
+}
+
+@code {
+    private void DialogVision()
+    {
+		var options = new DialogOptions { CloseOnEscapeKey = true };
+        DialogService.Show<DialogVision>("Nuestra Visión", options);
+    }
+}
+
+<!DOCTYPE html>
+<html>
+      <head>
+           <meta name="viewport" content="width=device-width, initial-scale=1">
+           <meta charset="utf-8">
+           <meta http-equiv="X-UA-Compatible" content="IE=edge">
+           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+           <title>Main Page FB</title>
+           <link rel="stylesheet" href="css/MainPageStyles.css">
+  
+
+      </head>
+      <body>
+           <div id="parent">
+               <div class="Prompt">
+                   <h2 class="PromptTittle"> Iniciativa FoodWaste UCR  </h2>
+                   <div class="read-more-wrap">
+                        Actualmente, un tercio de la comida de consumo humano que se produce se desperdicia antes de que sea consumida. 
+                        Esto sucede principalmente por el <a target= "_blank" href="https://consumoresponsable.org/desperdicioalimentario/que-es"><span class="bolded">foodwaste</span></a>.<br>
+                        <br> Buscar una solución para este problema es de suma importancia para una mejor calidad de vida. 
+                        FoodWaste UCR busca combatir esta problemática desde una perspectiva inclusiva, eficiente y moderna.
+                   </div>
+               </div>
+
+               <AuthorizeView Roles ="Personal, Business">
+                    <Authorized> 
+                       <div class="ButtonDonations">
+                           <NavLink class="nav-link" href="donate">
+                                <MudButton Variant="Variant.Filled" Style="background-color: #448AFF; color: white; width: 240px; height: 100px; font-size: 20px">
+                                    Donar Alimentos
+                                </MudButton>
+                           </NavLink>
+                       </div>
+                       <div class="ButtonBeneficiary">
+                            <NavLink class="nav-link" href="donationList">
+                                <MudButton Variant="Variant.Filled" Style="background-color: #43A047; color: white; width: 240px; height: 100px; font-size: 20px">
+                                    Recibir Alimentos
+                                </MudButton>
+                            </NavLink>
+                       </div>
+                     </Authorized>
+                </AuthorizeView>
+
+           </div>
+      </body>
+</html>

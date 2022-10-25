@@ -1,0 +1,272 @@
+﻿<!--
+This document is for the US: ALV-DO-1.1 Add location to donation
+    and was done by a joint effort by all members of ALV.
+-->
+@* Project includes *@
+@using Application
+@using Application.Authentication
+@using Application.Authentication.Implementations
+@using Application.Locations
+@using Application.Donations
+@using Domain.Core.ValueObjects
+@using Domain.Donations.Entities
+@using Domain.Locations.Entities
+@using Domain.Products.Entities
+@using Presentation.Core.Components
+@using Presentation.Core.Models
+@using Presentation.Donations.Components
+@using Presentation.Donations.Models
+@using Presentation.Products.Components
+@using Presentation.Products.Models
+
+@* System includes *@
+@using LanguageExt
+@using Microsoft.AspNetCore.Components
+
+@using System.Globalization
+
+@* Injecting system services *@
+@inject IDialogService DialogService
+@inject IJSRuntime JsRuntime
+@* Injecting project services *@
+@inject IDonationService DonationService
+@inject IAuthenticationService AuthenticationService
+
+@page "/donate"
+@* Including Card style sheet *@
+<link href="/css/components/Card.css" rel="stylesheet" />
+<link href="/css/components/InputStandard.css" rel="stylesheet" />
+
+<h1 id="donation-header"; style="margin-top:20px ; margin-bottom: 20px" align="center">Registro de una donación</h1>
+
+<center>
+    @********************* Donation information ******************************@
+
+    <div class="card">
+        <div class="container" id="donation-card">
+            <h3 id="description"; align="center">Descripción</h3>
+            @*Donation Description Component*@
+            <MudTextField @bind-Value="donation.Description"
+                Class="InputStandard"
+                Label="Descripción" Required="true"
+                Counter="50" MaxLength="50" Immediate="true" Lines="1"
+                Variant="Variant.Outlined">
+            </MudTextField>
+            @* Calling LocationDropdown component *@
+            <h3 id="exact-location"; align="center">Ubicación</h3>
+            <center>
+                <LocationDropdown LocationChange="@HandleLocationChange"
+                    @ref="Dropdown" />
+            </center>
+            
+            @* Input space for entering the exact location *@
+            <MudTextField @bind-Value="donation.ExactLocation"
+                Class="InputStandard mt-10"
+                Label="Escriba la ubicación exacta" Required="true"
+                Counter="500" MaxLength="500" Immediate="true" Lines="5"
+                Variant="Variant.Outlined">
+            </MudTextField>
+            @* Checking if both required fields are filled *@
+            @if (donation.ExactLocation != "") { requiredLocation = true; }
+        </div>
+    </div>
+
+    @********************** Donation product's *******************************@
+
+    <br />
+    <h2 id="product-list"; align="center">Lista de Productos</h2>
+
+
+    @* Listing all products added to a donation in real time *@
+    <div class="card">
+        <div class="container" id="registration-card">
+            <ProductsList donation="donation" products="products" />
+            @* Displaying button to add a product to the donation *@
+            <MudButton Variant="Variant.Filled" Color="Color.Info"
+                       OnClick="@((e) => openProductForm(maxWidth))">
+                Agregar producto
+            </MudButton>
+        </div>
+    </div>
+
+    <br />
+
+    @************************ Donation buttons *******************************@
+
+    @* Checking for required fields to activate button *@
+    @if (requiredDropdown == true && requiredLocation == true &&
+    donation.Products.Count != 0 && donation.Description != "") {
+        requiredFields = true;
+        <MudGrid Justify="Justify.Center">
+            <MudItem lg="4">
+                <MudButton Variant="Variant.Filled" Color="Color.Dark"
+                       Size="Size.Large" Style="width:360px;height:50px;"
+                       OnClick="clearFields">
+                    Limpiar
+                </MudButton>
+            </MudItem>
+            <MudItem lg="4">
+                <MudButton Variant="Variant.Filled" Color="Color.Success"
+                    Style=@(
+                        $"--mud-palette-success-text:{Colors.Shades.White};width:360px;height:50px;")
+                    Size="Size.Large" OnClick="registerDonation">
+                    Crear donación
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    }
+    <br />
+</center>
+
+@code {
+    DialogOptions maxWidth = new DialogOptions
+    {
+        MaxWidth = MaxWidth.Small,
+        FullWidth = true,
+        CloseOnEscapeKey = true
+    };
+    private LocationDropdown? Dropdown;
+
+    /* Boolean values for validations */
+    private bool requiredDropdown = false;
+    private bool requiredLocation = false;
+    private bool requiredFields = false;
+    // private bool _IsLoading = true;
+
+    /* Donation Model for storing input */
+    private Donation donation = new Donation();
+    private List<Product> products = new List<Product>();
+
+    /*************************** Handling location ***************************/
+
+    /* Handling response from LocationDropdown Component */
+    private void HandleLocationChange(LocationModel locModel)
+    {
+        if (!string.IsNullOrEmpty(locModel.Province) &&
+        !string.IsNullOrEmpty(locModel.County) &&
+        !string.IsNullOrEmpty(locModel.District))
+        {
+            donation.Province = locModel.Province;
+            donation.County = locModel.County;
+            donation.District = locModel.District;
+            requiredDropdown = true;
+        }
+    }
+
+    /*************************** Handling Product ****************************/
+
+    /* Opens Product Form options */
+    async Task openProductForm(DialogOptions options)
+    {
+        var dialog = DialogService.Show<PopupProduct>(
+            "Ingrese los datos del producto", options);
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            ProductModel model = (ProductModel)result.Data;
+            HandleProductAddition(model);
+        }
+    }
+
+    /* Handling input from PopupProduct Component */
+    private void HandleProductAddition(ProductModel model)
+    {
+        if (hasRequiredFields(model) == true)
+        {
+            // Creating product from product model
+            Product product = new Product(model.Name!, model.FoodType!,
+            model.ProdType!, model.Quantity, model.Weight, model.Brand!);
+            product.ExpirationDate = model.Expiration;
+
+            // Adding product to donation
+            foreach (var restriction in model.Restrictions)
+            {
+                product.AddRestrictionToProduct(restriction);
+            }
+            donation.AddProductToDonation(product);
+            products = new List<Product>(donation.Products);
+
+        }
+    }
+
+    /* Checking product fields */
+    private bool hasRequiredFields(ProductModel model)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        if (!string.IsNullOrEmpty(model.Name) && model.Weight != 0.0 &&
+        !string.IsNullOrEmpty(model.ProdType) && model.Quantity != 0 &&
+        !string.IsNullOrEmpty(model.FoodType))
+        {
+            if (hasRepeatedProduct(model) == false)
+            {
+                DialogService.Show<SubmittedProductDialog>(
+                "Su producto ha sido registrado exitosamente", options);
+                return true;
+            }
+            else
+            {
+                DialogService.Show<RepeatedProductError>(
+                "Ese producto ya existe ", options);
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /* Checking if product already exists */
+    private bool hasRepeatedProduct(ProductModel model)
+    {
+        List<Product> products = new List<Product>(donation.Products);
+        foreach (Product p in products)
+        {
+            if (model.Name!.Equals(p.Name,
+            StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /************************ Donation buttons *******************************/
+
+    /* Calls Donation Service and stores donation information */
+    private async Task registerDonation()
+    {
+        openConfirmationDialog();
+        if (requiredFields == true)
+        {
+            donation.DonorId = await getActualUser();
+            await DonationService.AddDonationAsync(donation);
+        }
+    }
+
+    private async Task<string?> getActualUser()
+    {
+        await AuthenticationService.GetValueAsync();
+        return await AuthenticationService.GetLoggedUserEmail();
+    }
+    /************************ Clear every field *******************************/
+    private void clearFields()
+    {
+        donation.Clear();
+        products = new List<Product>(donation.Products);
+        requiredDropdown = false;
+        requiredLocation = false;
+        Dropdown!.Clear();
+        donation.ExactLocation = "";
+    }
+
+    /************************ Donation Success Popup *******************************/
+    private void openConfirmationDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        if (requiredFields)
+        {
+            DialogService.Show<SubmittedCorrectlyDialog>
+            ("Su donación fue registrada exitosamente", options);
+        }
+    }
+
+}

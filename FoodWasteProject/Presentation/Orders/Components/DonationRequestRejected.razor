@@ -1,0 +1,38 @@
+﻿@inject NavigationManager _navigationManager
+
+@*
+-Los Macacos
+
+Collaborators:
+- Josher Ramirez
+- Sirlany Mora
+- Aaron Campos
+- Estefany Ramirez
+- David Rojas
+
+
+- Summary: component showing that the donation request was rejected.
+*@
+<MudDialog>
+    <DialogContent>
+        <MudAlert Severity="Severity.Error">La solicitud de donacion fue rechazada.</MudAlert>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Href = "@orderId" Color="Color.Info" OnClick="submitt">Finalizar</MudButton>
+
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public string? orderId  { get; set; }
+    
+
+    //void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    //void Cancel() => MudDialog.Cancel();
+    private void submitt()
+    {
+        MudDialog.Close(DialogResult.Ok(true));
+        _navigationManager.NavigateTo(orderId, true);
+    }
+}

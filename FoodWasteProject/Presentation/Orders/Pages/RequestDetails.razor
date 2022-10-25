@@ -1,0 +1,173 @@
+﻿@*
+-Los Macacos
+
+Collaborators:
+- Josher Ramirez
+- Sirlany Mora
+- Aaron Campos
+- Estefany Ramirez
+- David Rojas
+
+- Summary: This Blazor page displays details about a donation that is requested, such as the products requested and the name of the recipient
+*@
+@using Application.Authentication
+@using Application.Orders
+@using Application.Products
+@using Domain.Products.Entities
+@using Domain.Orders.Entities
+@using MudBlazor
+@using Presentation.Orders.Components
+@using Domain.Donations.DTOs
+@using Presentation.Products.Models
+@page "/RequestDetails/{orderId:int}"
+
+
+@inject IDonationService DonationService
+@inject IDialogService DialogService
+@inject IOrderService OrderService
+@inject IProductService ProductService
+@inject NavigationManager NavManager
+@inject IAuthenticationService AuthenticationService
+
+
+@if (_isLoading)
+{
+    <LoadingCardsComponent></LoadingCardsComponent>
+}
+else
+{
+    <div class="text-center">
+        <h1>Solicitud #@orderId</h1>
+    </div>
+
+   
+
+    //<BeneficiaryInfoCard BeneficiaryName="@_donation.Province"></BeneficiaryInfoCard>
+    //nombre del beneficiario
+
+    <div style="margin-top:15px"><center><h2>Productos de la donación solicitada </h2></center></div>
+    //pegar los productos de la orden
+
+    @if (_products is null)
+    {
+
+    }
+    else
+    {
+        foreach (var productItem in _products)
+        {
+            ProductModel Modelo = new ProductModel(productItem.Id, productItem.Name, productItem.FoodType, productItem.ProductType,
+            productItem.Quantity, productItem.Weight, productItem.Brand!, productItem.ExpirationDate,
+            productItem.Restrictions.ToList(), productItem.Image!, productItem.DonationId);
+            @if (productItem.ExpirationDate > DateTime.Today)
+            {
+                <center>
+                    <ProductCard Product="@Modelo"></ProductCard>
+                </center>
+            }
+        }
+    }
+    @if(_order.OrderStatus != "F" && _order.OrderStatus != "R")
+    {
+        
+        <div style="margin-top:15px"><center><h2>Ayuda</h2></center></div>
+        <MudButton Href="@getLink()" Variant="Variant.Filled" Color="Color.Info"
+        Style="margin:10px; padding:10px; display: block;margin-left: auto;margin-right:auto; width: 25%; text-align:center">Chat</MudButton> 
+    }
+
+
+    @if ( _showDeliveryOrderComponent)
+    {
+      
+        <center>
+            
+            <div class="card" style="flex-direction:column; width: 801px">
+                <DeliveryOrderComponent orderId="orderId" recipedName="@_order.RecipientId"></DeliveryOrderComponent>
+                
+            </div>
+        </center>
+    }
+
+}
+
+
+@code {
+
+    private bool _isLoading = true;
+    private bool _showDeliveryOrderComponent = false;
+
+    [Parameter]
+    public int orderId { get; set; }
+
+    public Order? _order { get; set; }
+
+    public IList<Product>? _products { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDonation();
+
+    }
+
+    private async Task LoadDonation()
+    {
+        _order = await OrderService.GetOrderByIdAsync(orderId);
+        _products = await ProductService.getProductsByOrderAsync(orderId);
+        _showDeliveryOrderComponent = await showDonationDelivery();
+
+        _isLoading = false;
+    }
+
+    private async void requestDonation()
+    {
+        int idDonor = 1; //_donationDTO.DonorId Dummie Data. Hay que sacarlo de la donacion *ALV*
+        int idRecipient = 2;
+        OpenDialog();
+    }
+
+    private void OpenDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        DialogService.Show<DonationRequestSent>("Donación Solicitada", options);
+    }
+
+    private async Task CompleteRequest()
+    {
+        Order _order;
+        _order = await OrderService.GetOrderByIdAsync(orderId);
+
+        _order.OrderStatus = "F";
+        OrderService.CompleteOrderAsync(_order);
+        Console.WriteLine("Finalizada");
+
+
+    }
+    public string getLink()
+    {
+        return "chatroom/" + orderId;
+    }
+    public async Task<bool> showDonationDelivery()
+    {
+        await AuthenticationService.GetValueAsync();
+        string UserEmail = await AuthenticationService.GetLoggedUserEmail();
+        if (_order.OrderStatus == "A")
+        {
+            return true;  
+        }
+        if (_order.DonorId == UserEmail)
+        {
+            if (_order.OrderStatus == "B" || _order.OrderStatus == "b")
+            {
+                return true;
+            }   
+        }
+        else
+        {
+            if (_order.OrderStatus == "D" || _order.OrderStatus == "d"){
+                return true;
+            }
+        }
+        return false;
+    }
+}
+

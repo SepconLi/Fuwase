@@ -1,0 +1,10 @@
+﻿
+.InputStandard .mud-input.mud-input-outlined:focus-within .mud-input-outlined-border {
+    border-color: #2979FF;
+    color: #2979FF;
+}
+
+.InputStandard .mud-input:focus-within ~ label.mud-input-label.mud-input-label-inputcontrol {
+    color: #2979FF;
+    border-color: #2979FF;
+}

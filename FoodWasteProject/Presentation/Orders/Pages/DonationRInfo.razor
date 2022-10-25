@@ -1,0 +1,54 @@
+﻿@using Application.Orders
+@using Application.Users
+@using Domain.Orders.Entities
+@using Domain.Users.Entities
+@using MudBlazor
+@using Presentation.Orders.Components
+
+@inject NavigationManager _navigationManager
+@inject IOrderService OrderService
+@inject IDialogService DialogService
+@inject IPersonalUserService PersonalUserService
+
+<link href="/css/components/Card.css" rel="stylesheet" />
+
+
+
+@if (_isLoading)
+{
+    <LoadingCardsComponent></LoadingCardsComponent>
+}
+else
+{
+    <div class = "card" style="width:70%;  margin: 0 auto;"> 
+        <div style="border-style:solid;  padding-left: 25px; width:80%; display:block;">
+            <MudButton Style="font-size:17px" StartIcon="@Icons.Filled.AddBox">Solicitud @order!.Id</MudButton>
+            <MudText>Solicitante: @RecipientName </MudText>
+            <MudText>Estado: @order.statusDictionary[order.OrderStatus!] </MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Info" Href="@getLink(order!.Id)" Style="margin-top:10px; margin-right: 10px; margin-bottom: 10px;">Ver detalles</MudButton>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _isLoading = false;
+    public EventCallback<Order> OnValidSubmit { get; set; }
+
+    [Parameter]
+    public Order? order { get; set; }
+
+    [Parameter]
+    public string? RecipientName { get; set; }
+
+    private string getLink(int id)
+    {
+        return "/requestDetails/" + id;
+    }
+
+    private async Task<string?> getRecipientName()
+    {
+        PersonalUser? recipientUser = await PersonalUserService.GetPersonalUserByEmail(order.RecipientId);
+        return recipientUser!.Name;
+    }
+  
+}

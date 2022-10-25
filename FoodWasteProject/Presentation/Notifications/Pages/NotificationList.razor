@@ -1,0 +1,47 @@
+﻿@using MudBlazor
+@using Presentation.Notifications.Components
+@using Domain.Notifications.Entities
+@using Application.Notifications
+@using Application.Authentication
+@using Presentation.Orders.Components
+
+@inject INotificationService NotifiactionServices
+@inject IAuthenticationService AuthenticationService
+
+
+@if (_isLoading)
+{
+	<LoadingCardsComponent></LoadingCardsComponent>
+}
+else{
+	<div class="d-flex">
+		<div class="d-flex flex-column pa-1" style="overflow-y: scroll; height:700px">
+			<div>
+				<h3>Notificaciones sin leer: @counter</h3>
+				@for (int item = _notifications.Length()-1; item >=0; item--)
+				{
+					<NotificationDatils Notif="@_notifications![item]" notificationText ="@_notifications[item].NotificationText" link="@_notifications[item].Link" dateOfNotification="@_notifications[item].TimeNotification" stateNotification = "@_notifications[item].ReadNotification"></NotificationDatils>
+				}
+			</div>
+		</div>
+</div>
+}
+
+
+@code {
+	private bool _isLoading = true;
+	int counter = 0;
+	public IList<Notification>? _notifications;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await AuthenticationService.GetValueAsync();         
+		string? actualUser  = await AuthenticationService.GetLoggedUserEmail();
+		_notifications =  await NotifiactionServices.GetNotificationByEmailAsync(actualUser!);
+		counter = await NotifiactionServices.GetNumberUnRead(actualUser!);
+		_isLoading = false;
+		
+
+		
+	}
+}

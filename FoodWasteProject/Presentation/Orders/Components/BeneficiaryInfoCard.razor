@@ -1,0 +1,29 @@
+﻿@*
+-Los Macacos
+
+Collaborators:
+- Josher Ramirez
+- Sirlany Mora
+- Aaron Campos
+- Estefany Ramirez
+- David Rojas
+
+*@
+<div style="margin: 10px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); 
+                    background-color:#F9FAFF; border-style:solid; border-color:lightgray; display:flex; margin-bottom: 10px; width:40%"> 
+    <div style="padding-left: 25px; width:100%">
+        <h3><b>Información del Beneficiario</b></h3>
+        <MudText Style="padding: 10px">Nombre: @BeneficiaryName</MudText>
+    </div>	
+</div>
+
+
+@code{
+
+ [Parameter]
+ public string? BeneficiaryName { get; set; } 
+ [Parameter]
+ public string? Image { get; set; }
+
+
+}

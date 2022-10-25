@@ -1,0 +1,381 @@
+﻿<!--
+ User Story: CD-US-1.2
+ Subtask: CD-US-1.2.11
+ Collaborators: Nathan, Mariana, Emmanuel, Álvaro
+-->
+@page "/UserRegistration"
+
+@using System
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Application.Locations
+@using Application.Users
+@using Application.Users.Implementations
+@using Application.Utilities
+@using Application.Utilities.Implementations
+@using Domain.Core.Exceptions
+@using Domain.Core.Helpers
+@using Domain.Core.ValueObjects
+@using Domain.Utilities.Entities
+@using Domain.Locations.Entities
+@using Domain.Users.Repositories
+@using Domain.Users.Entities
+@using Presentation.Core.Components
+@using Presentation.Core.Layout
+@using Presentation.Core.Models
+@using Presentation.Users.Models
+@using Presentation.Users.Components
+
+@inject NavigationManager NavManager
+@using BC = BCrypt.Net.BCrypt;
+
+@inject IUserService UserService
+@inject IClientService ClientService
+@inject IPersonalUserService PersonalUserService
+@inject IConfirmationCodeService ConfirmationCodeService
+@inject IRedirectInformationService RedirectInformationService
+@inject IMailService MailService
+@inject ISnackbar Snackbar
+@inject IBusinessUserService BusinessUserService
+
+<link href="/css/components/InputStandard.css" rel="stylesheet" />
+
+<MudGrid Justify="Justify.Center" Class="mt-16">
+    <MudItem xs="5" sm="7">
+        <MudPaper Class="pa-4 ">
+            <MudForm @ref="form" @bind-IsValid="@success">
+
+                <!--    tittle  -->
+                <MudText Class="my-10" Align="Align.Center" Typo="Typo.h3">🥑¡Bienvenido a FoodWaste!🍕</MudText>
+
+                <!--    Profile Picture     -->
+                <UploadPicture OnValidSubmit="HandleUserProfilePicture_input"></UploadPicture>
+
+                <!--    General info    -->
+                <General_InfoUserForm OnValidSubmit="HandleGeneralUserInfo_input"></General_InfoUserForm>
+
+                <!--    type of account selection -->
+                <!---   Calls personal user or business user    -->
+                <MudTabs Class="mt-10 mb-5" Outlined="false" Centered="true" Border="true" Rounded="true" Color="@Color.Info">
+                    <MudTabPanel Text="Cuenta personal" Icon="@Icons.Rounded.Person" ToolTip="Crear un cuenta personal" ID='"pn_one"'>
+                        
+                        <PersonalUserInfo_Form OnValidSubmit="HandlePersonalUserInfo_input"></PersonalUserInfo_Form>
+
+                    </MudTabPanel>
+                    <MudTabPanel Text="Cuenta Empresarial" Icon="@Icons.Filled.BusinessCenter" ToolTip="Crear un cuenta empresarial" ID='"pn_two"'>
+                        
+                        <BusinessUserInfo_Form  OnValidSubmit="HandleBusinessUserInfo_input"></BusinessUserInfo_Form>
+
+                    </MudTabPanel>
+                </MudTabs>
+                
+                <MudText Class="sjustify-left" Typo="Typo.caption" Align="Align.Left" Style="color: gray; font-weight:300">Selecione su ubicación:</MudText>
+                <!--   Location selection   -->
+                <LocationDropdown LocationChange="@HandleLocationChange" />
+
+                <br/>
+                <!--     Password input  -->
+                <PasswordInput OnValidSubmit="HandlePassword_input"></PasswordInput>
+
+                <!--Confimation button-->
+                <div class="d-flex align-center justify-space-between mt-6 pb-10">
+                    <MudButton Variant="Variant.Filled" @onclick="HandleUserSubmit" Disabled="@(!success)" Class="ml-auto blue darken-1 text-white">Unirse a FoodWaste 🍪</MudButton>
+                </div>
+
+                <!--    Log in link-->
+                <MudContainer Class="ma-10 justitfy-center" MaxWidth="MaxWidth.Small">
+                        <MudLink Color="Color.Info" Href="/LoginPage" Underline="Underline.Hover">¿Ya tienes cuenta? ¡Inicia sesión!</MudLink>
+
+                </MudContainer>
+            </MudForm>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+
+@code {
+    bool success;
+    private string? _userFormMessage = null;
+    // private Alert.AlertColor _userFormAlertColor = Alert.AlertColor.Danger;
+    public EventCallback<PersonalUser> pOnValidSubmit { get; set; }
+    public EventCallback<BusinessUser> bOnValidSubmit { get; set; }
+    MudForm? form;
+
+    public int IntValue { get; set; }
+
+    //--account type---
+    public int accountType { get; set; } = 0!; //1 for personal, 2 for business
+
+    private PersonalUserModel personalUserModel { get; set; } = new();
+    private BusinessUserModel businessUserModel { get; set; } = new();
+
+    //------------------Profile Picture----------------------------
+    /// <summary>
+    /// handles the users profile picture
+    /// </summary>
+    /// <param name="profilePictureURL"></param>
+    private void HandleUserProfilePicture_input(string profilePictureURL)
+    {
+        personalUserModel.ProfilePicture = profilePictureURL;
+        businessUserModel.ProfilePicture = profilePictureURL;
+    }
+
+    //------------------General     User     Info----------------------------
+    /// <summary>
+    /// handles the general usr informtation of the compoent
+    /// </summary>
+    /// <param name="genInfo"></param>
+    private void HandleGeneralUserInfo_input(UserModel genInfo)
+    {
+        if (genInfo != null)
+        {
+            personalUserModel.UserName = genInfo.UserName;
+            businessUserModel.UserName = genInfo.UserName;
+            personalUserModel.Email = genInfo.Email;
+            personalUserModel.PhoneNumber = genInfo.PhoneNumber;
+            businessUserModel.Email = genInfo.Email;
+            businessUserModel.PhoneNumber = genInfo.PhoneNumber;
+        }
+    }
+
+    //----------------Handle Password input component-----------------------
+    /// <summary>
+    /// handles the password input of child compoennt
+    /// </summary>
+    /// <param name="password"></param>
+    private void HandlePassword_input(string password)
+    {
+        if (password != null)
+        {
+            personalUserModel.Password = password;
+            businessUserModel.Password = password;
+        }
+    }
+
+    //--------------Hadle personal user component------------------
+    /// <summary>
+    /// handles the personal user input component child
+    /// </summary>
+    /// <param name="personalUserInfo"></param>
+    private void HandlePersonalUserInfo_input(PersonalUserModel personalUserInfo)
+    {
+        if (personalUserInfo != null)
+        {
+            personalUserModel.Name = personalUserInfo.Name;
+            personalUserModel.LastName = personalUserInfo.LastName;
+            personalUserModel.IdNumber = personalUserInfo.IdNumber;
+            accountType = 1;
+        }
+    }
+
+    /// <summary>
+    /// handles the business user input component child
+    /// </summary>
+    /// <param name="businessUserInfo"></param>
+    private void HandleBusinessUserInfo_input(BusinessUserModel businessUserInfo)
+    {
+        if (businessUserInfo != null)
+        {
+            businessUserModel.Business_Name = businessUserInfo.Business_Name;
+            businessUserModel.Legal_Document = businessUserInfo.Legal_Document;
+            businessUserModel.Person_In_Charge = businessUserInfo.Person_In_Charge;
+            accountType = 2;
+        }
+    }
+
+    /// <summary>
+    /// handles the location change
+    /// </summary>
+    /// <param name="locModel"></param>
+    private void HandleLocationChange(LocationModel locModel)
+    {
+        if (!string.IsNullOrEmpty(locModel.Province) &&
+            !string.IsNullOrEmpty(locModel.County) &&
+            !string.IsNullOrEmpty(locModel.District) ) {
+            personalUserModel.Province = locModel.Province;
+            personalUserModel.District = locModel.County;
+            personalUserModel.Town = locModel.District;
+            businessUserModel.Province = locModel.Province;
+            businessUserModel.District = locModel.County;
+            businessUserModel.Town = locModel.District;
+            //requiredDropdown = true;
+        }
+    }
+
+    //------------------HandleUserSubmit final step in registration-----------------------
+    /// <summary>
+    /// handles the final confirmation of the user, to create the account
+    /// </summary>
+    /// <returns></returns>
+    private async Task HandleUserSubmit()
+    {   
+        if (accountType == 1)
+        {
+            await CreatePersonalUser();
+            Snackbar.Add("Su cuenta ha sido registrada", Severity.Success);
+        }
+        else if (accountType == 2)
+        {
+            await CreateBusinessUser();
+            Snackbar.Add("Su cuenta ha sido registrada", Severity.Success);
+            Snackbar.Add("Se le notificará cuando su cuenta sea verificada por un administrador.", Severity.Success);
+        }
+    }
+
+    /// <summary>
+    /// creates a personal user with the personalUserModel and sends a confirmation code por verification
+    /// </summary>
+    /// <returns></returns>
+    private async Task CreatePersonalUser()
+    {
+        string hash = BC.HashPassword(personalUserModel.Email);
+        var hashedEmail = hash.Replace('/', '*');
+
+        if (personalUserModel.ProfilePicture == null)
+        {
+            personalUserModel.ProfilePicture = "../images/Default_User.png";
+        }
+
+        var personalUser = new PersonalUser(
+           personalUserModel.IdNumber,
+           personalUserModel.Name,
+           personalUserModel.LastName,
+           personalUserModel.Email,
+           personalUserModel.UserName,
+           personalUserModel.PhoneNumber,
+           personalUserModel.Password,
+           2,
+           hashedEmail,
+           false,
+           "Personal",
+           personalUserModel.Town!,
+           personalUserModel.District!,
+           personalUserModel.Province!,
+           0,
+           personalUserModel.ProfilePicture);
+   
+        await pOnValidSubmit.InvokeAsync(personalUser);
+        // reset the form
+        personalUserModel = new PersonalUserModel();
+        businessUserModel = new BusinessUserModel();
+
+        _userFormMessage = null;
+
+        try
+        {
+            //Validate if the user exists in the database
+            //If the user doesn´t exists in the databse
+            await PersonalUserService.AddPersonalUserAsync(personalUser);
+            NavManager.NavigateTo("/");
+            //Send Email with code
+            await SendVerificationEmail(personalUser);
+        }
+        catch (DomainException e)
+        {
+            _userFormMessage = e.Message;
+        }
+        catch (Exception)
+        {
+            _userFormMessage = "Ha ocurrido un error. Por favor inténtelo de nuevo.";
+            // _userFormAlertColor = Alert.AlertColor.Danger;
+        }
+    }
+
+    /// <summary>
+    /// creates a business user with the businessUserModel
+    /// </summary>
+    /// <returns></returns>
+    private async Task CreateBusinessUser()
+    {
+        string hash = BC.HashPassword(personalUserModel.Email);
+        var hashedEmail = hash.Replace('/', '*');
+        if (businessUserModel.ProfilePicture == null)
+        {
+            businessUserModel.ProfilePicture = "../images/Default_User.png";
+        }
+        var businessUser = new BusinessUser(
+                 businessUserModel.Business_Name,
+                 businessUserModel.Legal_Document,
+                 DateTime.Today,
+                 businessUserModel.Person_In_Charge,
+                 businessUserModel.Town!,
+                 businessUserModel.District!,
+                 businessUserModel.Province!,
+                 0,
+                 businessUserModel.Email,
+                 businessUserModel.UserName,
+                 businessUserModel.Password,
+                 3,
+                 hashedEmail,
+                 false,
+                 "Business",
+                 businessUserModel.PhoneNumber,
+                 businessUserModel.ProfilePicture
+            );
+
+        await bOnValidSubmit.InvokeAsync(businessUser);
+        // reset the form
+        personalUserModel = new PersonalUserModel();
+        businessUserModel = new BusinessUserModel();
+
+        _userFormMessage = null;
+
+        try
+        {
+            //Validate if the user exists in the database
+            //If the user doesn´t exists in the databse
+            await BusinessUserService.AddBusinessUserAsync(businessUser);
+            NavManager.NavigateTo("/");
+        }
+        catch (DomainException e)
+        {
+            _userFormMessage = e.Message;
+        }
+        catch (Exception)
+        {
+            _userFormMessage = "Ha ocurrido un error. Por favor inténtelo de nuevo.";
+            // _userFormAlertColor = Alert.AlertColor.Danger;
+        }
+    }
+
+    private async Task SendVerificationEmail(PersonalUser personalUser)
+    {
+        //Generate random code
+        Random confirmationCode = new Random();
+        int _confirmationCode = confirmationCode.Next(100000, 1000000);
+        ConfirmationCode code = new ConfirmationCode(personalUser.Email, _confirmationCode);
+        //Add Confirmation Code to DB
+        await ConfirmationCodeService.AddConfirmationCode(code);
+        RedirectInformation info = new RedirectInformation("/confirmation-code/",personalUser.Email,personalUser.HashedEmail);
+        await RedirectInformationService.AddRedirectInformationAsync(info);
+        string link = "http://10.1.4.119//redirect/"+info.Hash;
+        string subject = "Food Waste: Código de activación de cuenta";
+        string msg1 = "Estimado/a usuario: \n\nTu código de confirmación para activar tu contraseña es: " + code.Code+
+            ". \n\nPuedes continuar con el proceso de activación de cuenta ingresando al siguiente link: "+link;        
+        string msg2 = "Estimado/a usuario: <br><br>Tu código de confirmación para activar tu contraseña es: " + code.Code+
+            ". <br><br>Puedes continuar con el proceso de activación de cuenta ingresando al siguiente link: <a href="+link+"> Activar cuenta</a>";
+        await MailService.SendEmailAsync(personalUser.Email, subject, msg1, msg2);
+        Snackbar.Add("Se ha enviado un código de activación al correo ingresado", Severity.Success);
+    }
+
+    <!--    Date    -->
+    // DateTime? date1 = null;
+    DateTime? date2 = DateTime.Today;
+    // DateTime? date3 = null;
+
+    private IEnumerable<string> validStringInput(string str)
+    {
+        if (string.IsNullOrWhiteSpace(str))
+        {
+            yield return "La contraseña es requerida!";
+            yield break;
+        }
+        if (Regex.IsMatch(str, @"[0-9]"))
+            yield return "No debe de ingresar números.";
+        if (Regex.IsMatch(str, @"[!@#$%^&*()_+=\[{\]};:<>|./?,-]"))
+            yield return "No debe de ingresar símbolos.";
+    }
+
+}
+
+

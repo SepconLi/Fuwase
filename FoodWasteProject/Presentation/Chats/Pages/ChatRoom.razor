@@ -1,0 +1,366 @@
+﻿@* /*
++-Los Macacos
++
++Collaborators:
++-Josher Ramirez
++-Sirlany Mora
++-Aaron Campos
++-Estefany Ramirez
++-David Rojas
++
++-Summary: Component that creates chatroom.
++*/*@
+
+@page "/ChatRoom/{OrderId:int}"
+
+
+@using Application.Users
+@using Application.Chats
+@using Microsoft.AspNetCore.SignalR.Client
+@using Application.Authentication
+@using Microsoft.AspNetCore.Components.Authorization
+@using Domain.Users.Entities
+@using Domain.Orders.Entities
+@using Presentation.Orders.Components
+@using Presentation.Chats.Components
+@using Application.Orders
+
+@*@page "/chatroom"*@
+@inject IDialogService DialogService
+@inject NavigationManager navigationManager
+@inject IChatService ChatService
+@inject IMessageService MessageService
+@inject IAuthenticationService AuthenticationService
+@inject IUserService UserService
+@inject IOrderService OrderService
+
+
+
+@using Domain.Messages.Entities
+
+
+<h1>Chat de la Orden #@OrderId</h1>
+<hr />
+@if (_isLoading)
+{
+    <LoadingCardsComponent></LoadingCardsComponent>
+}
+else
+{
+    <AuthorizeView Context="Account">
+        <Authorized>
+            @if (!_isChatting)
+            {
+                <MudAlert Severity="Severity.Warning">No estás autorizado para ver este chat</MudAlert>
+            }
+            else
+            {
+                // display messages
+                <MudPaper Style="overflow:scroll; display:block;" Height="700px" Width="100%">
+                    @foreach (var item in _messages)
+                    {
+                        @if (item.IsNotice)
+                        {
+                            <div class="alert alert-info">@item.Text</div>
+                        }
+                        else
+                        {
+                            <!-- class="@item.CSS -->
+                            string css = _username == item.SenderId ? "sent" : "received";
+
+
+                             @if (item.IsImage)
+                            {
+                                <div class="@css">
+                                    <MudImage Src="@item.Text.Remove(0,7)" Elevation="25" Class="rounded-lg" Width="200" Height="200"/>
+                                </div>
+                            }
+                            else
+                            {
+
+                                @if (item.IsLocation && getCoordsFromMessages(item.Text))
+                                {
+                                     <MapLocation sender="@userNames[item.SenderId]" isMine="@css" longt="@coords[0]" latit="@coords[1]"></MapLocation>
+                                }else{
+
+                                <div class = "@css">
+                               
+                                    <div class="user">@userNames[item.SenderId]</div>
+                                    <div class="msg">@item.Text</div>
+                               
+                                </div>
+                                }
+
+                             }
+                        }
+                    }
+                    <hr />
+                   
+                </MudPaper>
+
+                 <textarea style="height:50px" class="input-lg" placeholder="Mensaje..." @bind="@_newMessage"></textarea>
+
+
+                <MudButton Class="mr-2" OnClick="@(() => SendToGroup(_newMessage))" Variant="Variant.Filled" StartIcon="@Icons.Filled.Send" Color="Color.Info">Enviar Mensaje</MudButton>
+                <MudFab Class="mr-2" OnClick="@(() => showExtraOptions())" Color="Color.Info" StartIcon="@Icons.TwoTone.AttachFile" />
+                <MudButton Class="mr-2" hidden=@isExtraOptionsHidden OnClick="@openSendLocationDialog"Variant="Variant.Filled" StartIcon="@Icons.Filled.LocationOn" Color="Color.Info">Enviar ubicación</MudButton>
+                <MudButton hidden=@isExtraOptionsHidden OnClick="@openSendImageDialog"Variant="Variant.Filled" StartIcon="@Icons.Filled.AddPhotoAlternate" Color="Color.Info">Enviar imagen</MudButton>
+                
+                
+               
+            }
+            </Authorized>
+
+
+            <NotAuthorized>
+			    <MudAlert Severity="Severity.Warning">Debes estar registrado para ver tus solicitudes</MudAlert>
+		    </NotAuthorized> 
+            <Authorizing>
+                <h1>Espere</h1>
+            </Authorizing>
+
+    </AuthorizeView>
+}
+
+@code {
+    [Parameter]
+    public int OrderId { get; set; } 
+
+    private string? actualUser = "";
+
+    private bool _isLoading = true;
+
+    // flag to indicate chat status 
+    private bool _isChatting = true;
+
+    // name of the user who will be chatting
+    private string _username;
+
+    // on-screen message
+    private string? _message;
+
+    // new message input
+    private string? _newMessage;
+
+    double[] coords = new double[2];
+
+    Dictionary<string, string> userNames = new Dictionary<string, string>(); //Dictionary that matchs username with email
+
+    // list of messages in chat
+    private List<Message> _messages = new List<Message>();
+
+    private string? _hubUrl;
+    private HubConnection _hubConnection;
+
+    private bool isExtraOptionsHidden { get; set; } = true;
+
+    /// <summary>
+    //Show options to send a image and location
+    /// </summary>
+    private void showExtraOptions() { if (isExtraOptionsHidden) { isExtraOptionsHidden = false; } else { isExtraOptionsHidden = true; } }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthenticationService.GetValueAsync();
+        _username = await AuthenticationService.GetLoggedUserEmail();
+
+        // Create the chat client
+        string baseUrl = navigationManager.BaseUri;
+
+        _hubUrl = baseUrl.TrimEnd('/') + ChatHub.HubUrl;
+
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(_hubUrl)
+            .Build();
+
+        _hubConnection.On<string, string>("Broadcast", BroadcastMessage);
+
+
+        await _hubConnection.StartAsync();
+
+        string room = OrderId +"";
+
+        await ChatService.AddToGroupAsync(room,_hubConnection);
+
+        await getUsernames();
+
+        await Chat();
+        _isLoading = false;
+    }
+
+
+    /// <summary>
+    /// Starts the chat with old messages
+    /// </summary>
+    /// <returns></returns>
+    public async Task Chat()
+    {
+        // check username is valid
+        if (!userNames.TryGetValue(_username, out actualUser))
+        {
+            _isChatting = false;
+            //return;
+        }
+        else
+        {
+
+            try
+            {
+                // Start chatting and force refresh UI.
+                _isChatting = true;
+                await Task.Delay(1);
+
+                // remove old messages if any
+                _messages.Clear();
+
+                IEnumerable<Message> _oldMessages;
+                _oldMessages = await MessageService.GetMessagesAsync(OrderId);
+                Console.WriteLine("Cantidad de mensajes en el chat: " + _oldMessages.Length());
+
+                await _hubConnection.SendAsync("AddToGroup", OrderId + "");
+
+                foreach (var item in _oldMessages)
+                {
+                    _messages.Add(item);
+                }
+                StateHasChanged();
+            }
+            catch (Exception e)
+            {
+                _message = $"ERROR: Failed to start chat client: {e.Message}";
+                _isChatting = false;
+            }
+        }
+
+    }
+
+    /// <summary>
+    /// Send messages to all groups
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="message"></param>
+    private void BroadcastMessage(string name, string message)
+    {
+        bool isMine = name.Equals(_username, StringComparison.OrdinalIgnoreCase);
+        _messages.Add(new Message(OrderId,name,message));
+        // Inform blazor the UI needs updating
+        StateHasChanged();
+    }
+
+    private async Task Disconnect()
+    {
+        if (_isChatting)
+        {
+            //Call service to Disconnect user
+            await ChatService.DisconnectAsync(_hubConnection);
+
+            _hubConnection = null;
+            _isChatting = false;
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// Just send mesage and add to DB
+    /// </summary>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    private async Task Send(string message)
+    {
+        if (_isChatting && !string.IsNullOrWhiteSpace(message))
+        {
+            //Call service to send a message
+            await ChatService.SendAsync(message, _username, _hubConnection);
+
+            _newMessage = string.Empty;
+        }
+    }
+
+
+    /// <summary>
+    /// Send message inheritdoc this chat
+    /// </summary>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    private async Task SendToGroup(string message)
+    {
+        if (!string.IsNullOrWhiteSpace(message))
+        {
+            string room = OrderId + "";
+            //Call service to send a message
+            await ChatService.SendAsyncToGroup(room, message, _username, _hubConnection);
+            await MessageService.addMessage(new Message(OrderId,_username,message));
+
+            _newMessage = string.Empty;
+        }
+    }
+
+    /// <summary>
+    /// Open a dialog to send location in chat
+    /// </summary>
+    /// <returns></returns>
+    private async Task openSendLocationDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var dialog = DialogService.Show<SendLocationDialog>("Enviar ubicación", options);
+
+        var result = await dialog.Result;
+        if(!result.Cancelled){
+            await SendToGroup(result.Data.ToString());
+        }
+
+    }
+
+    /// <summary>
+    /// Open a dialog to send image in chat
+    /// </summary>
+    /// <returns></returns>
+    private async Task openSendImageDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var dialog = DialogService.Show<SendImageDialog>("Enviar imagen", options);
+
+        var result = await dialog.Result;
+        if(!result.Cancelled){
+            await SendToGroup(result.Data.ToString());
+        }
+
+    }
+
+    /// <summary>
+    /// Get latitude and longitude in message to render a map
+    /// </summary>
+    /// <returns></returns>
+    private bool getCoordsFromMessages(string text)
+    {
+
+        string cutText = text.Remove(0, 10);
+
+        string[] stringcoords = cutText.Split(';');
+
+        Console.WriteLine(stringcoords[0]);
+
+        coords[0] = Convert.ToDouble(stringcoords[0]);
+        coords[1] = Convert.ToDouble(stringcoords[1]);
+
+        return true;
+    }
+
+    /// <summary>
+    /// Creates a dictionary that matchs the order donor and order recipient emails with theirs usernames
+    /// </summary>
+    /// <returns></returns>
+    private async Task getUsernames()
+    {
+        Order order = await OrderService.GetOrderByIdAsync(OrderId);
+        User user = await UserService.GetUserByEmail(order.DonorId);
+        userNames.Add(order.DonorId,user.UserName);
+        user = await UserService.GetUserByEmail(order.RecipientId);
+        userNames.Add(order.RecipientId,user.UserName);
+
+        userNames.ToList().ForEach(x => Console.WriteLine("LLave: "+x.Key+" Valor: "+x.Value));
+
+    }
+
+
+ }

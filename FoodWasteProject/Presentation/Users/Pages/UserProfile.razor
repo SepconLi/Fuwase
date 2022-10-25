@@ -1,0 +1,204 @@
+﻿@*
+    CD-US-3.1 View personal user profile
+    As a registered personal user I want to be able to view my account information in a profile so that I can verify that my information is correct.
+    Collaborators:
+    - Álvaro Miranda
+    - Nathan Miranda
+    - Mariana Murillo
+    - Emmanuel Zúñiga
+
+    This Blazor page displays the user information, for this the user's email is used to obtain the data from the database
+    subsequently each text field is updated with the user data
+*@
+
+@page "/UserProfile"
+
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Application.Users
+@using Application.Users.Implementations
+@using Application.Authentication
+@using Application.Authentication.Implementations
+@using Domain.Core.Exceptions
+@using Domain.Core.Helpers
+@using Domain.Core.ValueObjects
+@using Domain.Users.Repositories
+@using Domain.Users.Entities
+@using Presentation.Core.Components
+@using Presentation.Core.Layout
+@using Presentation.Users.Models
+@using Application.Authentication
+@using Application.Statistics
+
+@inject IUserService UserService
+@inject IClientService ClientService
+@inject IPersonalUserService PersonalUserService
+@inject IStatisticService StatisticService
+@inject WebsiteAuthenticator WebAutenticator
+@inject NavigationManager Nav
+@inject IAuthenticationService AuthenticationService
+
+@*User information container*@
+<div class="container">
+    <Loading IsLoading="_isLoading">
+        @if (_personalUser is null)
+        {
+            <h4 class="text-danger">El perfil del usuario ingresado no existe.</h4>
+        }
+        else
+        {
+            <MudContainer Class="align-self-center py-4 flex-1 mt-5" MaxWidth="MaxWidth.Medium">
+                <MudPaper Class="d-flex pa-4 mb-2 flex-wrap gap-x-8 gap-y-4 justify-center" Elevation="6">
+                    <MudGrid Class="mx-auto pa-12" Justify="Justify.Center">
+                        <MudText Typo="Typo.h2">🥩 @_personalUser.Name @_personalUser.LastName 🍓</MudText>
+                    </MudGrid>
+                    @*Container for the Profile Picture and the user basic information*@
+                    <MudContainer Class="d-flex flex-nowrap gap-4">
+                        @*Container for the Profile Picture*@
+                        <MudContainer Class="justify-center gap-x-15 ml-15">    
+                            <MudAvatar Image=@_personalUser.Profile_Picture Style="height: 193px; width: 193px" />
+
+                            @*User ranking*@                           
+                            @if (rank is not null)
+                            {
+                                <MudText Class = "ml-8" Typo="Typo.subtitle1">Donador @rank</MudText>
+                                <MudImage Class = "ml-14" Src=@rankMedal Width="75" Height="75" Alt="Ranking"/>
+                            }
+                            
+                        </MudContainer>
+                        @*Container for the user basic information*@
+                        <MudContainer Class="mr-13">
+
+                            <!--User UserName-->
+
+                            <MudStack Justify="Justify.Center" Spacing="0">
+                                <MudText Typo="Typo.h6">Nombre de Usuario</MudText>
+                                <MudPaper Class="pa-3" Style = "width:300px">@_personalUser.UserName</MudPaper>
+                            </MudStack>
+
+                            <!--User Email-->
+
+                            <MudStack Justify="Justify.Center" Spacing="0">
+                                <MudText Typo="Typo.h6">Correo Electrónico</MudText>
+                                <MudPaper Class="pa-3" Style = "width:300px">@_personalUser.Email</MudPaper>
+                            </MudStack>
+
+                            <!--User PhoneNumber-->
+
+                            <MudStack Justify="Justify.Center" Spacing="0">
+                                <MudText Typo="Typo.h6">Número de Teléfono</MudText>
+                                <MudPaper Class="pa-3" Style = "width:300px">@_personalUser.PhoneNumber</MudPaper>
+                            </MudStack>
+                        </MudContainer>
+                    </MudContainer>
+
+                    @*Container for the Buttons and the User Location information*@
+                    <MudContainer Class="d-flex flex-nowrap gap-4">
+                        @*Container for the Buttons*@
+                        <MudContainer>
+                            <MudStack Justify="Justify.Center">
+                                <MudButton Class="mt-2 ml-3 mr-2" Size="Size.Large" Variant="Variant.Filled" EndIcon="@Icons.Filled.Subject" Style="background-color: #01579B; color: white; width: 80%" Href="/history">Historial de Donaciones</MudButton>
+                                <MudButton Class="mt-1 ml-3 mr-2" Size="Size.Large" Variant="Variant.Filled" EndIcon="@Icons.Filled.Subject" Style="background-color: #42A5F5; color: white; width: 80%" Href="/RequestedDonationList">Historial de Recepciones</MudButton>
+                                 <MudButton Class="mt-1 ml-3 mr-2" Size="Size.Large" Variant="Variant.Filled" EndIcon="@Icons.Filled.NoFood" Style="background-color: #01579B; color: white; width: 80%" Href="/UserPreferences">Alergias</MudButton>
+                                <MudButton Class="mt-1 ml-3 mr-2" Size="Size.Large" Variant="Variant.Filled" EndIcon="@Icons.Filled.InsertChartOutlined" Style="background-color: #42A5F5; color: white; width: 80%" Href="/userStatistics">Estadisticas</MudButton>
+
+                                @*   Anonimatus togle button   *@
+                                <div>
+                                    <MudToggleIconButton Toggled="@AnonimatusOn" ToggledChanged="OnToggledChanged"
+                                                     Icon="@Icons.Custom.Brands.Awesome" Color="@Color.Error" Title="Off"
+                                                     ToggledIcon="@Icons.Custom.Brands.Awesome" ToggledColor="@Color.Success" ToggledTitle="On" />
+                                    <span>Anonimato esta @(AnonimatusOn ? "encendido" : "apagado")</span>
+                                </div>
+
+                            </MudStack>
+                        </MudContainer>
+                        @*Container for the location information*@
+                        <MudContainer >
+                            <MudStack Justify="Justify.Center" Spacing="0">
+                                <MudText Typo="Typo.h6">Provincia</MudText>                                
+                                <MudPaper Class="pa-3" Style = "width:300px">@_personalUser.Province</MudPaper>
+                            </MudStack>
+
+
+                            <!--User Town-->
+                            <MudStack Justify="Justify.Center" Spacing="0">
+                                <MudText Typo="Typo.h6">Cantón</MudText>
+                                <MudPaper Class="pa-3" Style = "width:300px">@_personalUser.District</MudPaper>
+                            </MudStack>
+
+                            <!--User District-->
+                            <MudStack Justify="Justify.Center" Spacing="0">
+                                <MudText Typo="Typo.h6">Distrito</MudText>
+                                <MudPaper Class="pa-3" Style = "width:300px">@_personalUser.Town</MudPaper>
+                            </MudStack>
+
+                            <!--User Strikes-->
+                            <MudStack Justify="Justify.Center" Spacing="0">
+                                <MudText Typo="Typo.h6">Strikes</MudText>
+                                <MudPaper Class="pa-3" Style = "width:300px">@_personalUser.Strikes</MudPaper>
+                            </MudStack>
+                        </MudContainer>
+                    </MudContainer>
+
+                    @*<MudLink Href=@publicLink Underline="Underline.Hover" Color="Color.Info">Ver tu perfil público</MudLink>*@
+                    <MudButton Size="Size.Large" Variant="Variant.Filled" EndIcon="@Icons.Filled.Person" Style="background-color: #01579B; color: white; width: 287px" Href=@publicLink>Ver tu perfil público</MudButton>
+
+                </MudPaper>
+            </MudContainer>
+
+        }
+    </Loading>
+
+</div>
+
+
+@code {
+    public string? UserEmail { get; set; }
+    private bool _isLoading = true;
+    PersonalUser? _personalUser;
+    User? _user;
+    private string? publicLink { get; set; }
+    private string? rank {get; set; }
+    private string? rankMedal { get; set; }
+    public bool AnonimatusOn { get; set; }
+
+    public async Task OnToggledChanged(bool toggled)
+    {
+
+        AnonimatusOn = toggled;
+
+        if (AnonimatusOn)
+        {
+            //stufff
+
+        }
+        else{
+            AnonimatusOn = false;
+        }
+        _user.Anom_Preference = !_user.Anom_Preference;
+        await UserService.ChangeAnomPreference(_user);
+
+    }
+
+    //Initialize page
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthenticationService.GetValueAsync();
+        UserEmail = await AuthenticationService.GetLoggedUserEmail();
+        await LoadPersonalUser();
+        var ranking = await StatisticService.GetUserRanking(_personalUser.Email);
+        rank = ranking.Item1;
+        rankMedal = ranking.Item2;
+        AnonimatusOn = _user.Anom_Preference;
+
+        _isLoading = false;
+    }
+
+    //Gets the Personal User from the database, the user data is loaded from the email.
+    public async Task LoadPersonalUser()
+    {
+        _user = await UserService.GetUserByEmail(UserEmail);
+        publicLink = "/PublicProfile/" + _user.HashedEmail;
+        _personalUser = await PersonalUserService.GetPersonalUserByEmail(UserEmail);
+    }
+}

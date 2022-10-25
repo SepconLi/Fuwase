@@ -1,0 +1,395 @@
+﻿@*
+-Los Imborrables
+-Macacos
+
+Developers:
+- Andres
+- Fabian
+- Gilbert
+- Maeva
+
+- Summary: Page and UI for the user to select an specific order and quantity.
+*@
+@using Application.Authentication
+@using Application.Donations
+@using Domain.Donations.Entities;
+@using Application.Orders
+@using Application.Users
+@using Application.Products
+@using Application.Notifications
+@using Domain.Products.Entities
+@using Domain.Orders.Entities
+@using Domain.Notifications.Entities
+@using MudBlazor
+@using Presentation.Orders.Components
+@using Domain.Donations.DTOs
+@using Presentation.Products.Models
+@using Domain.Orders.DTOs;
+@using Microsoft.AspNetCore.Components.Authorization
+@using Domain.Users.Entities
+
+@page "/donation/{donationId:int}"
+
+@inject IDonationService DonationService
+@inject IDialogService DialogService
+@inject IOrderService OrderService
+@inject IProductService ProductService
+@inject INotificationService NotificationService
+@inject IUserService UserService
+
+<!--Validation Services-->
+@inject IAuthenticationService AuthenticationService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavManager
+
+<link href="/css/components/Card.css" rel="stylesheet" />
+<link href="/css/components/InputStandard.css" rel="stylesheet" />
+
+@if (_isLoading)
+{
+    <LoadingCardsComponent></LoadingCardsComponent>
+}else
+{
+    //Donation overview selected by the receiver
+    <br>
+    <div class="text-center">
+        <h1> @_donation.Description </h1>
+        <h4> Código de donación: @donationId </h4>
+    </div>
+    <br>
+
+    //<DonorInfoCard DonatorName =@getNameByEmail(_donation.DonorId,userInformations) showButton=false> </DonorInfoCard>
+
+    //Donor information and profile button
+    @if (!getNameByEmail(_donation.DonorId,userInformations).Equals("Anonimo")) {
+    <div class="card" style="width:70%;display: block;margin-left: auto;margin-right:auto;"> 
+        <div style="padding-left: 25px; width:100%">
+            <h3 style="margin-left:25px; margin-top: 2%"><b>Información del Donador</b></h3>
+            <div style="padding: 10px;">
+                <MudButton  Href="@getLink()" Style="font-size:16px;margin-left:2%; margin-bottom: 1%; ">Nombre del Donador: @getNameByEmail(_donation.DonorId,userInformations)</MudButton>
+            </div>
+        </div>	
+     </div>
+    }
+  
+     //Donation Exact Location
+    <DonationUbicCard Provincia="@_donation!.Province" Canton="@_donation!.County" Distrito = "@_donation!.District"></DonationUbicCard>
+
+    <center >
+        <!--Content of donation tab-->
+           <div class="card" style="width:70%;display: block;margin-left: auto;margin-right: auto; margin-bottom: 3%;" >
+               <div class="container" id="donation-card">
+                   <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@((e) => openForm(maxWidth))" Style="margin-top: 2%">
+                        Filtrar Alergenos
+                   </MudButton>
+
+                    @*Alergens filter*@
+                    @if( productFilter!=null &&productFilter.Restrictions.Count != 0 ){
+                        <MudCardContent>
+                        <div class="labels-container">
+                        <MudText Typo="Typo.body2">Alergenos Filtrados:  </MudText>
+                        @foreach (var allergen in productFilter.Restrictions!)
+                        {
+                            <span class="allergen-label">@allergen</span>
+                         }       
+                      </div> 
+                      </MudCardContent>
+                    }
+               </div>
+
+                @foreach(var model in productModels)
+                {
+                    //Products should have (Expired products filter)
+                    @if (applyFilters(model))
+                    {
+                        @*Individual product Card component*@
+                        <center >
+                           <ProductCard Product="@model" showButton=false></ProductCard>
+                        </center>
+                    }
+                }
+
+            </div>
+    </center>
+
+    <!--Request donation button component-->
+    <div class="card" style="width:70%;display: block;margin-left: auto;margin-right:auto;">
+        <MudButton Variant="Variant.Filled" Color="Color.Success"  
+                    Style="margin:20px; padding:20px; display: block;margin-left: auto;margin-right:auto;"
+                    @onclick="requestDonation">Solicitar donación</MudButton>
+    </div>
+}
+   
+@code {
+
+    private bool _isLoading = true;
+
+    DialogOptions maxWidth = new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseOnEscapeKey = true };
+    FiltersModel productFilter = new FiltersModel();
+    private DateTime today = DateTime.Today;
+
+    [Parameter]
+    public int donationId { get; set; }
+    private IList<InformacionDTO> userInformations;
+    private IList<InformacionDTO> _anomInformation;
+
+    private Donation? _donation;
+    private IReadOnlyCollection<Product>? _products;
+    // Product models to iterate and create cards and checkboxes
+    private List<ProductModel> productModels = new List<ProductModel>();
+
+    [Parameter]
+    public string? DonatorName { get; set; }
+    [Parameter]
+    public int orderId { get; set; }
+
+    private User? donador { get; set; }
+    public Order _order { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDonation();
+    }
+
+    /// <summary>
+    /// Handles the load of donation data from DB and creates the models
+    /// </summary>
+    private async Task LoadDonation()
+    {
+        _donation = await DonationService.GetByIdAsync(donationId);
+        _products = _donation!.Products;
+        productModels.Clear();
+        foreach(var productItem in _products)
+        {
+            ProductModel Modelo = new ProductModel(productItem.Id, productItem.Name, productItem.FoodType,
+                productItem.ProductType, productItem.Quantity, productItem.Weight, productItem.Brand!,
+                productItem.ExpirationDate,  productItem.Restrictions.ToList(), productItem.Image!,
+                productItem.DonationId);
+            productModels.Add(Modelo);
+        }
+        userInformations = await OrderService.getInformationPersonalAsync();
+        _anomInformation = await OrderService.getAnonInformationAsync();
+        await GetUserByEmail(_donation.DonorId);
+        _isLoading = false;
+    }
+
+    @*Method to get donor by email*@
+    private async Task GetUserByEmail(string email)
+    {
+        donador = await UserService.GetUserByEmail(email);
+    }
+
+    @*Method to get donors hash email*@
+    public string getLink()
+    {
+        return " /PublicProfile/" + donador.HashedEmail;
+    }
+
+    @*Method to get email by name*@
+    private string? getNameByEmail(string email,IList<InformacionDTO> userInformations)
+    {
+        foreach(var item in _anomInformation){
+            if (email.Equals(item.Email) && item.Anom_Preference == false)
+            {
+                 return item.UserName;   
+            }
+        }
+        return "Anonimo";
+    }
+
+    /// <summary>
+    /// Returns the email of the user that is making the Order.
+    /// </summary>
+    private async Task<string?> getCurrentUser()
+    {
+        await AuthenticationService.GetValueAsync();
+        return await AuthenticationService.GetLoggedUserEmail();
+    }
+    /// <summary>
+    /// Requested donation dialog
+    /// </summary>
+    private void OpenDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        DialogService.Show<DonationRequestSent>("Donación Solicitada", options);
+    }
+
+    @*Method to get specific chat link for donor and user*@
+    public string getChatLink()
+    {
+        return "chatroom/" + orderId;
+    }
+
+}
+
+@code {
+    // Value for "Select All" products Checkbox
+    private bool _selectAll = false;
+    public bool SelectAll {
+        get => _selectAll;
+        set{
+            _selectAll = value;
+            foreach (var productItem in productModels)
+            {
+                productItem.Selected = value;
+                if (value==true)
+                {
+                    productItem.SelectedQuantity = productItem.Quantity;
+                }
+                else
+                {
+                    productItem.SelectedQuantity = 0;
+
+                }
+            }
+        }
+    }
+}
+
+@code {
+
+
+    private async void requestDonation()
+    {
+        string idDonor = _donation!.DonorId;
+        string? idRecipient = await getCurrentUser();
+        DateTime time = DateTime.Now;
+        // If Order has at least one product
+        if(productModels.Exists(p => p.SelectedQuantity > 0)){
+            // Create a new Order
+            Order newOrder = new Order("P",idDonor, idRecipient!);
+            int orderId;
+            //int _orderId = await OrderService.AddOrderAsync(newOrder);
+            // COMPLETE DONATION = All products were selected
+            // There is not a product unselected and there is not a product which selected Quantity is less than the total quantity
+            if(!productModels.Exists(p => p.Selected == false) && !productModels.Exists(p => p.SelectedQuantity < p.Quantity)) {
+                // REQUEST OF COMPLETE DONATION -> All products of donation requested
+                orderId= await RequestCompleteDonation(newOrder);
+
+                
+            } else
+            {
+                // REQUEST OF PARTIAL DONATION -> Add all selected products
+                orderId= await  RequestPartialDonation(newOrder);
+                await CreateNotifications(idRecipient,"Su solicitud de Donación se envió correctamente", "/OrderSummary/"+ donationId +"/"+ orderId, time);
+                await CreateNotifications(idDonor,"Tienes una nueva solicitud de donacion", "/requestDetails/"+ orderId, time);
+                
+
+            }
+            //Dialog of Order completed
+            await LoadDonation();
+            StateHasChanged();
+            OpenDialog(orderId);
+
+        } else {
+            // Error when user has tried to create an order without products
+            Snackbar.Add("Debe seleccionar al menos un producto para solicitar una donación", Severity.Error);
+        }
+    }
+
+    /// <summary>
+    /// Requested donation dialog
+    /// </summary>
+    private void OpenDialog(int _orderId)
+    {
+        string link = "/OrderSummary/"+donationId+ "/"+_orderId;
+        NavManager.NavigateTo(link);
+    }
+
+    /// <summary>
+    /// Handles the Order, Donation and Products when ALL products of the Donation were selected
+    /// </summary>
+    private async Task<int> RequestCompleteDonation(Order order)
+    {
+        List<int> selectedQuantities = new List<int>();
+        foreach (var product in _products)
+        {
+            // Add total Quantity cause it takes all the units of all products
+            selectedQuantities.Add(product.Quantity);
+        }
+         return await OrderService.CreateOrderAsync(order, _products!.ToList(), selectedQuantities);
+    }
+
+    /// <summary>
+    /// Handles the Order, Donation and Products when just SOME products of the Donation were selected
+    /// </summary>
+    private async Task<int> RequestPartialDonation(Order order)
+    {
+        // Add all requested products
+        List<Product> selectedProducts = new List<Product>();
+        List<int> selectedQuantities = new List<int>();
+        foreach (var product in productModels)
+        {
+            if (/*product.Selected &&*/ product.SelectedQuantity > 0)
+            {
+                Product updatedProduct = new Product(product.Id, product.Name!, product.FoodType!, product.ProdType!,
+                    product.Expiration, product.Quantity, product.Weight, _donation, product.Image,
+                    product.Brand!, product.Restrictions,_donation!.Id);
+
+                // Add Selected Quantity
+                selectedQuantities.Add(product.SelectedQuantity);
+                updatedProduct.DonationId = product.DonationId;
+                selectedProducts.Add(updatedProduct);
+            }
+        }
+        return await OrderService.CreateOrderAsync(order, selectedProducts, selectedQuantities);
+    }
+   
+    private async Task CreateNotifications(string email, string text, string link, DateTime timeNotification)
+    {
+             Notification notification = new Notification(email, text, link, false, timeNotification);
+             await NotificationService.addNotification(notification);
+    }
+
+
+    /* Opens Allergens Form options */
+    async Task openForm(DialogOptions options) {
+        var dialog = DialogService.Show<PopupAllergensFilter> ("Seleccione los alérgenos que desea filtrar", options);
+        var result = await dialog.Result;
+        if (!result.Cancelled) {
+            productFilter = (FiltersModel) result.Data;
+            Snackbar.Add("Sus filtros fueron aplicados", Severity.Success);
+        }
+    }
+
+    /** This function test every posible filter in the product
+     * returns false if the product fails passing any filter
+     */
+
+    private bool applyFilters(ProductModel product)
+    {
+        // product != null && (today < product.ExpirationDate) == true
+        // Is a valid model (Not null)
+        if (product == null)
+            return false;
+        // Is not expired
+        if (today > product.Expiration)
+            return false;
+        // Doesn't contain the filtered allergens
+        if (applyAllergensFilter(product) != true)
+            return false;
+        // Todo: Is from the right location? or add others filters here
+
+        // Happy ending: The product passed the filters
+        return true;
+    }
+
+    private bool applyAllergensFilter(ProductModel product)
+    {
+        // If the productFilter is null, then no allergen has been applied
+        if (productFilter == null)
+            return true;
+        foreach (var allergen in product.Restrictions)
+        {
+            foreach (var filtered in productFilter.Restrictions)
+            {
+                // if the product contains an allergen that is filtered
+                // the product is discarted
+                if (allergen.FoodRestriction == filtered)
+                    return false;
+            }
+        }
+        // Happy ending: No allergens in this product that are in the filter
+        return true;
+    }
+}

@@ -1,0 +1,239 @@
+﻿@*
+-Los Imborrables
+
+Developer:
+- Andres
+
+- Summary: Page and UI for the user to select an specific product and quantity inside a campaign.
+*@
+@using Domain.Campaigns.Entities
+@using Application.Campaigns
+@using Domain.Campaigns.DTOs
+@using Application.Authentication
+@using Application.Donations
+@using Domain.Donations.Entities;
+@using Application.Orders
+@using Application.Users
+@using Application.Products
+@using Domain.Products.Entities
+@using Domain.Orders.Entities
+@using MudBlazor
+@using Presentation.Orders.Components
+@using Domain.Donations.DTOs
+@using Presentation.Products.Models
+@using Presentation.Campaigns.Models
+@using Domain.Orders.DTOs;
+@using Microsoft.AspNetCore.Components.Authorization
+@using Domain.Users.Entities
+
+@page "/campaignOrder/{campaignId:int}"
+
+@inject IDonationService DonationService
+@inject IDialogService DialogService
+@inject IOrderService OrderService
+@inject IProductService ProductService
+@inject IUserService UserService
+@inject ICampaignProductService CampaignProductService
+@inject ICampaignService CampaignService
+
+<!--Validation Services-->
+@inject IAuthenticationService AuthenticationService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavManager
+
+<link href="/css/components/Card.css" rel="stylesheet" />
+<link href="/css/components/InputStandard.css" rel="stylesheet" />
+
+@if (_isLoading)
+{
+    <LoadingCardsComponent></LoadingCardsComponent>
+}else
+{
+    //Donation overview selected by the receiver
+    <br>
+      <div class="text-center">
+          <h1> @_campaign!.Name </h1>
+          <h4> Código de Campaña: @campaignId </h4>
+      </div>
+    <br>
+
+    <center >
+        <!--Content of donation tab-->
+        <div class="card" style="width:70%;display: block;margin-left: auto;margin-right: auto; margin-bottom: 3%;" >
+           @foreach(var model in campaignProductModels)
+           {
+             @*Individual product Card component*@
+             <center >
+                <OrderProductCampaignCard productModel="@model" showButton=false></OrderProductCampaignCard>
+             </center> 
+           }
+        </div>
+    </center>
+
+    <!--Request donation button component-->
+    <div class="card" style="width:70%;display: block;margin-left: auto;margin-right:auto;">
+        <MudButton Variant="Variant.Filled" Color="Color.Success" Disabled="true"
+                    Style="margin:20px; padding:20px; display: block;margin-left: auto;margin-right:auto;"
+                    @onclick="requestDonation">Solicitar Productos</MudButton>
+    </div>
+}
+   
+@code {
+
+    private bool _isLoading = true;
+
+    [Parameter]
+    public int campaignId { get; set; }
+    public int productId {get; set;}
+
+    // private Donation? _donation;
+    private Campaign? _campaign;
+    private IList<CampaignProductDTO>? _campaignProducts;
+
+    private List<ProductModel> productModels = new List<ProductModel>();
+    private List<CampaignProductModel> campaignProductModels = new List<CampaignProductModel>();
+
+    [Parameter]
+    public string? DonatorName { get; set; }
+    [Parameter]
+    public int orderId { get; set; }
+
+    private User? donador { get; set; }
+    public Order? _order { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCampaignDonation();
+        _isLoading = false;
+    }
+
+    /// <summary>
+    /// Handles the load of donation data from DB and creates the models
+    /// </summary>
+    /// 
+    private async Task LoadCampaignDonation()
+    {
+        _campaign = await CampaignService.GetByIdAsync(campaignId);
+        _campaignProducts = await CampaignProductService.GetCampaignProductByIdAsync(campaignId);
+
+        foreach(var productItem in _campaignProducts) 
+        {
+            CampaignProductModel Modelo = new CampaignProductModel(productItem.Id, productItem.Name!, productItem.FoodType!,
+                productItem.ProductType!, (int)productItem.Quantity!, (double)productItem.Weight!,(int)productItem.CampaignId!);
+            campaignProductModels.Add(Modelo);
+        }
+    }
+
+    /// <summary>
+    /// Returns the email of the user that is making the Order.
+    /// </summary>
+    private async Task<string?> getCurrentUser()
+    {
+        await AuthenticationService.GetValueAsync();
+        return await AuthenticationService.GetLoggedUserEmail();
+    }
+    /// <summary>
+    /// Requested donation dialog
+    /// </summary>
+    private void OpenDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        DialogService.Show<DonationRequestSent>("Donación Solicitada", options);
+    }
+}
+
+@code {
+    // Value for "Select All" products Checkbox
+    private bool _selectAll = false;
+    public bool SelectAll {
+        get => _selectAll;
+        set{
+            _selectAll = value;
+            foreach (var productItem in campaignProductModels)
+            {
+                productItem.Selected = value;
+                if (value==true)
+                {
+                    productItem.SelectedQuantity = productItem.Quantity;
+                }
+                else
+                {
+                    productItem.SelectedQuantity = 0;
+
+                }
+            }
+        }
+    }
+}
+
+@code {
+    private async void requestDonation()
+    {
+        string idDonor = _campaign!.CreatorEmail!;
+        string? idRecipient = await getCurrentUser();
+
+        // If Order has at least one product
+        if(campaignProductModels.Exists(p => p.SelectedQuantity > 0)){
+            // Create a new Order
+            Order newOrder = new Order("F",idDonor, idRecipient!);
+            int orderId;
+            //int _orderId = await OrderService.AddOrderAsync(newOrder);
+            // COMPLETE DONATION = All products were selected
+            // There is not a product unselected and there is not a product which selected Quantity is less than the total quantity
+            if(!campaignProductModels.Exists(cp => cp.Selected == false) && !campaignProductModels.Exists(cp => cp.SelectedQuantity < cp.Quantity)) {
+                // REQUEST OF COMPLETE DONATION -> All products of donation requested
+                orderId= await RequestCompleteDonation(newOrder);
+            } else
+            {
+                // REQUEST OF PARTIAL DONATION -> Add all selected products
+                orderId= await  RequestPartialDonation(newOrder);
+            }
+            //Dialog of Order completed
+
+            //OpenDialog(orderId);
+
+        } else {
+            // Error when user has tried to create an order without products
+            Snackbar.Add("Debe seleccionar al menos un producto", Severity.Error);
+        }
+    }
+
+    /// <summary>
+    /// Handles the Order, Donation and Products when ALL products of the Donation were selected
+    /// </summary>
+    private async Task<int> RequestCompleteDonation(Order order)
+    {
+        List<int> productsId = new List<int>();
+        List<int> selectedQuantities = new List<int>();
+        foreach (var CProduct in _campaignProducts!)
+        {
+            Product product = new Product(CProduct.Name!, CProduct.FoodType!, CProduct.ProductType!, CProduct.Quantity, CProduct.Weight);
+            // Add total Quantity cause it takes all the units of all products
+            productsId.Add(await ProductService.AddCampaignProduct(product));
+            selectedQuantities.Add(product.Quantity);
+        }
+        return await OrderService.CreateCampaignOrderAsync(order, productsId, selectedQuantities);
+    }
+
+    /// <summary>
+    /// Handles the Order, Donation and Products when just SOME products of the Donation were selected
+    /// </summary>
+    private async Task<int> RequestPartialDonation(Order order)
+    {
+        // Add all requested products
+        List<int> productsId = new List<int>();
+        List<int> selectedQuantities = new List<int>();
+        foreach (var CProduct in campaignProductModels)
+        {
+            if (CProduct.SelectedQuantity > 0)
+            {
+                Product product = new Product(CProduct.Name!, CProduct.FoodType!, CProduct.ProductType!, CProduct.SelectedQuantity, CProduct.Weight);
+                // Add total Quantity cause it takes all the units of all products
+                productsId.Add(await ProductService.AddCampaignProduct(product));
+                // Add Selected Quantity
+                selectedQuantities.Add(product.Quantity);
+            }
+        }
+        return await OrderService.CreateCampaignOrderAsync(order, productsId, selectedQuantities);
+    }
+}

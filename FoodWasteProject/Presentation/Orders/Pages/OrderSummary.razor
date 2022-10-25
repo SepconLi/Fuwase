@@ -1,0 +1,151 @@
+﻿@*
+-Los Imborrables
+
+Collaborators:
+- Maeva Murcia
+
+- Summary: This Blazor page shows the summary of the order, the donor, their location, their products.
+*@
+@using Application.Orders
+@using Application.Products
+@using Application.Users
+@using Domain.Donations.Entities
+@using Domain.Products.Entities
+@using Domain.Orders.Entities
+@using Domain.Users.Entities
+@using MudBlazor
+@using Presentation.Orders.Components
+@using Domain.Donations.DTOs
+@using Presentation.Products.Models
+@page "/OrderSummary/{donationId:int}/{orderId:int}"
+
+
+@inject IDonationService DonationService
+@inject IDialogService DialogService
+@inject IOrderService OrderService
+@inject IProductService ProductService
+@inject NavigationManager NavManager
+@inject IUserService UserService
+
+
+@if (_isLoading)
+{
+    <LoadingCardsComponent></LoadingCardsComponent>
+}
+else
+{
+    <div class="text-center">
+        <h1>Desglose de Solicitud</h1>
+    </div>
+
+    //Informacion del Donador
+        <MudGrid Justify="Justify.Center">
+          <div style="margin-top: 15px; margin-bottom:15px;">
+              <MudButton StartIcon=@Icons.Filled.LocationOn 
+                  Href="@getLocationLink(_donation.Province,_donation.County,_donation.District)"
+                    Target="_blank" >
+                    @_donation.District, @_donation.County, @_donation.Province, Costa Rica
+              </MudButton>
+          </div>
+        </MudGrid>
+
+
+
+        <MudGrid Justify="Justify.Center">
+            <MudItem lg="4">
+                     <MudButton Href="@getLink()" Variant="Variant.Filled" Color="Color.Info" 
+                     Size="Size.Large" Style="width:360px;height:50px;">Información del Donador</MudButton>
+            </MudItem>
+            <MudItem lg="4">
+                     <MudButton Href="@getChatLink()" Variant="Variant.Filled" Color="Color.Info" 
+                     Size="Size.Large" Style="width:360px;height:50px;">Chat con el Donador</MudButton>
+            </MudItem>
+        </MudGrid>
+
+
+    <div style="margin-top:35px"><h2><center>Productos Solicitados</center></h2></div>
+    //Productos de la orden
+    <h2> </h2>
+    @if (_products is null)
+    {
+    <div style="margin-top:15px"><h4><center>Hubo un problema con su solicitud y no puede ser mostrada, contacte a nuestro soporte.</center></h4></div>
+
+    }
+    else
+    {
+        foreach (var productItem in _products)
+        {
+            ProductModel Modelo = new ProductModel(productItem.Id, productItem.Name, productItem.FoodType, productItem.ProductType,
+            productItem.Quantity, productItem.Weight, productItem.Brand!, productItem.ExpirationDate,
+            productItem.Restrictions.ToList(), productItem.Image!, productItem.DonationId);
+            @if (productItem.ExpirationDate > DateTime.Today)
+            {
+                <center>
+                    <ProductCard Product="@Modelo"></ProductCard>
+                </center>
+            }
+        }
+    }
+}
+
+
+@code {
+
+    private bool _isLoading = true;
+
+    [Parameter]
+    public int orderId { get; set; }
+
+    [Parameter]
+    public int donationId { get; set; }
+
+    public Order _order { get; set; }
+
+    public IList<Product> _products { get; set; }
+
+    private User? donador { get; set; }
+
+    private Donation? _donation;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrder();
+    }
+
+    private async Task LoadOrder()
+    {
+        _order = await OrderService.GetOrderByIdAsync(orderId);
+        _products = await ProductService.getProductsByOrderAsync(orderId);
+        await GetUserByEmail(_order.DonorId);
+        await LoadDonation();
+        _isLoading = false;
+    }
+
+    // Loading donation information
+    private async Task LoadDonation()
+    {
+        _donation = await DonationService.GetByIdAsync(donationId);
+    }
+
+    private async Task GetUserByEmail(string email)
+    {
+        donador = await UserService.GetUserByEmail(email);
+    }
+
+        public string getLink()
+    {
+        return " /PublicProfile/" + donador.HashedEmail;
+    }
+
+        public string getChatLink()
+    {
+        return "chatroom/" + orderId;
+    }
+        public string getLocationLink(String provincia, String canton, String distrito)
+    {
+        return "https://www.google.com/maps/place/"+provincia+"+"+canton+"+"+distrito;
+    }
+
+}
+
+

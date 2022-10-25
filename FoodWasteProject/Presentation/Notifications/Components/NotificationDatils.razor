@@ -1,0 +1,61 @@
+﻿@using MudBlazor
+@using Domain.Notifications.Entities
+@using Application.Notifications
+
+@inject INotificationService NotificationService
+
+<MudList Clickable="true">
+	<MudListItem DisableGutters="true" Href="@link" OnClick="@clickedNotification">
+		<div style="display: flex; margin-left:10px;">
+			<div style="margin-right:8px">
+				<MudAvatar Image="https://cdn-icons-png.flaticon.com/512/1738/1738691.png" Style="height: 40px; width: 40px" />
+			</div>
+			<div>
+				@if (!stateNotification)
+				{
+					<p style=" height: 40px; width: 220px; padding:10px">
+						<b>@notificationText</b>
+					</p>
+				}
+				else
+				{
+				<p style=" height: 40px; width: 220px; padding:10px;">
+					@notificationText
+				</p>
+				}
+				<p style="height: 40px; width: 220px; padding:10px">@dateOfNotification</p>
+			</div>
+			@if (!stateNotification)
+			{
+				<div style=" height: 40px; width: 20px ;margin:10px">
+					<MudBadge  Color="Color.Info" Style=""/>
+			</div>
+			}
+		</div>
+	</MudListItem>
+</MudList>
+
+@code {
+	 // Declaring parameters
+	[Parameter]
+	public string notificationText { get; set; }
+	[Parameter]
+	public string link { get; set; }
+	[Parameter]
+	public DateTime dateOfNotification { get; set; }
+	[Parameter]
+	public bool stateNotification { get; set; } 
+	[Parameter]
+	public Notification Notif { get; set; } 
+
+
+	/// <summary>
+	/// When click the notification it changes the status
+	/// </summary>
+	/// <returns></returns>
+	private async Task clickedNotification(){
+
+		await NotificationService.readNotificationAsync(Notif);
+
+	}
+}

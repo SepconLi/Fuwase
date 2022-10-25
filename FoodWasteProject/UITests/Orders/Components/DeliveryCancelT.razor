@@ -1,0 +1,26 @@
+﻿@using Bunit
+@using FluentAssertions
+@using Presentation.Orders.Components
+@using Xunit
+@using MudBlazor
+
+
+@inject IDialogService DialogService
+@inherits TestContext
+
+@code {
+	[Fact]
+	public void DeliveryCancelTest(){
+
+		var context = new TestContext();
+
+		//act
+		var cut = context.Render(
+			@<DeliveryCancel />
+		);
+
+
+		//assert
+		cut.Markup.Should().Contain("Donacion no entregada");
+	}
+}

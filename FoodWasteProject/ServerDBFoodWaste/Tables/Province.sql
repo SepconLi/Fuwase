@@ -1,0 +1,4 @@
+﻿CREATE TABLE [dbo].[Province]
+(
+	[Name] VARCHAR(100) NOT NULL PRIMARY KEY
+)

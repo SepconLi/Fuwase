@@ -1,0 +1,11 @@
+﻿@using Presentation.Orders.Components;
+
+@code {
+	[Fact]
+	public void ComponentDisplaysNameCorrectly()
+	{
+		var context = new TestContext();
+		var cut = context.Render(@<BeneficiaryInfoCard BeneficiaryName="David"></BeneficiaryInfoCard>);
+		cut.Markup.Should().Contain("David");
+	}
+}

@@ -1,0 +1,20 @@
+﻿@using PresentationTests.Core.Components;
+@using Presentation.Orders.Components;
+
+
+@code {
+   
+      [Fact]
+      public void DonationCarShould()
+      {
+            // arrange
+            var ctx = new TestContext();
+
+            //act
+            var cut = ctx.Render(
+            @<DonationCard  Nombre= "Donacion" Provincia = "Cartago"></DonationCard>
+            );
+            // assert
+            cut.Markup.Should().Contain( "Donacion, Cartago");
+      }
+}

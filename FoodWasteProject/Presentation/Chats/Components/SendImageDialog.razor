@@ -1,0 +1,47 @@
+﻿@* /*
++-Los Macacos
++
++Collaborators:
++-Josher Ramirez
++-Sirlany Mora
++-Aaron Campos
++-Estefany Ramirez
++-David Rojas
++
++-Summary: Component that handles the image sent.
++*/*@
+
+@using MudBlazor
+
+
+<MudDialog>
+    <DialogContent>
+			<UploadPictureChat OnValidSubmit = "HandleImage"></UploadPictureChat>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Size=Size.Large OnClick="Cancel">Cancelar</MudButton>
+        <MudButton Size=Size.Large Color="Color.Info" OnClick="sendImage">Enviar imagen</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    void Cancel() => MudDialog.Cancel();
+
+    private string link { get; set; } = "default";
+
+    public async Task<string> sendImage()
+    {
+        string message = link;
+        MudDialog.Close(DialogResult.Ok(message));
+        return message;
+    }
+
+    private void HandleImage(string profilePictureURL)
+    {
+        link = "[Image]" + profilePictureURL;
+        Console.WriteLine(link);
+    }
+
+}

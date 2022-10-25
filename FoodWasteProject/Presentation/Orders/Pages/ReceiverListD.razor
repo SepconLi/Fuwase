@@ -1,0 +1,105 @@
+﻿@using Application.Authentication
+@using MudBlazor
+@using Presentation.Orders.Components
+@using Domain.Orders.Entities
+@using Domain.Donations.DTOs
+@using Domain.Users.Entities
+@using System.Globalization;
+@using Application.Orders
+@using Application.Donations
+@using Application.Users
+@using Domain.Orders.DTOs
+@using System
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject IOrderService OrderService
+@inject IDonationService Service
+@inject IAuthenticationService AuthenticationService
+@inject IPersonalUserService PersonalUserService
+
+@page "/RequestedDonationList"
+
+<PageTitle>Historial de Donaciones Solicitadas</PageTitle>
+
+<!--Loading Component-->
+@if (_isLoading)
+{
+	<LoadingCardsComponent></LoadingCardsComponent>
+}
+else
+{
+	<!--Requested Donations by specific user-->
+	<div class="text-center">
+        <h1>Tus Solicitudes</h1>
+    </div>
+
+	<AuthorizeView Context="Account">
+		<Authorized>
+			@if (_orders == null)
+			{
+				//No orden has been requested
+				<h4 class="text-danger">No hay ordenes solicitadas.</h4>
+			}else{
+				//Load every order associated with actual user
+				@foreach (var order in _orders)
+				 {
+					Console.WriteLine("ACTUALuser"+actualUser);
+					@if (order.RecipientId.Equals(actualUser))
+					{
+						<DonationRInfo RecipientName=@getNameByEmail(order.DonorId) order=order></DonationRInfo>
+						//Order Info includes all products
+					}
+				}
+			}
+		</Authorized>
+
+		<Authorizing>
+			<LoadingCardsComponent></LoadingCardsComponent>
+		</Authorizing>
+		<!--User must be registered to see requested orders-->
+		 <NotAuthorized>
+			<MudAlert Severity="Severity.Warning">Debes estar registrado para ver tus solicitudes</MudAlert>
+		 </NotAuthorized>
+	</AuthorizeView>
+}
+
+@code {
+
+	private bool _isLoading = true;
+	private string? actualUser = null;
+	private IEnumerable<Order?> _orders;
+
+	private IList<InformacionDTO>? _userInformation;
+    private IList<InformacionDTO>? _userBusinessInformation;
+
+	protected override async Task OnInitializedAsync()
+	{
+		_orders = await OrderService.GetOrderAsync();
+		await getActualUser();
+		_userInformation = await OrderService.getInformationPersonalAsync();
+        _userBusinessInformation = await OrderService.getInformationBusinessAsync();
+        _userInformation.Concat(_userBusinessInformation);
+		_isLoading = false;
+	}
+
+	//user is registered
+	private async Task<PersonalUser?> getRecipientName(string recipientEmail)
+	{
+		await AuthenticationService.GetValueAsync();
+		return await PersonalUserService.GetPersonalUserByEmail(recipientEmail);
+	}
+
+	//User associated with donation
+	public async Task getActualUser()
+    {
+        await AuthenticationService.GetValueAsync();
+        actualUser = await AuthenticationService.GetLoggedUserEmail();
+		Console.WriteLine("AU: "+actualUser);
+    }
+
+	private string? getNameByEmail(string email)
+	{
+		return OrderService.getInformationByEmail(email, _userInformation).Result; 
+	}
+
+}

@@ -1,0 +1,233 @@
+﻿@*
+    Imborrables
+        - Fabian Gonzalez
+*@
+
+@page "/UserPreferences"
+
+@* TODO: Clean this using *@
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Application.Users
+@using Application.Users.Implementations
+@using Application.Authentication
+@using Application.Authentication.Implementations
+@using Application.Products
+@using Domain.Core.Exceptions
+@using Domain.Core.Helpers
+@using Domain.Core.ValueObjects
+@using Domain.Users.Repositories
+@using Domain.Users.Entities
+@using Domain.Products.Entities
+@using Presentation.Core.Components
+@using Presentation.Core.Layout
+@using Presentation.Users.Models
+@using Presentation.Products.Models
+@using Presentation.Products.Components
+
+@* Injecting project services *@
+@inject IDialogService DialogService
+@inject IAllergenService AllergenService
+
+
+@inject IUserService UserService
+@inject IClientService ClientService
+@inject IPersonalUserService PersonalUserService
+@inject WebsiteAuthenticator WebAutenticator
+@inject NavigationManager Nav
+@inject IAuthenticationService AuthenticationService
+@inject IUserFoodPreferencesService UserFoodPreferencesService
+
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<link href="/css/components/Card.css" rel="stylesheet" />
+
+@*User information container*@
+<div class="container">
+    <Loading IsLoading="_isLoading">
+        @if (_personalUser is null)
+        {
+            <h4 class="text-danger">El perfil del usuario ingresado no existe.</h4>
+        }
+        else
+        {
+            <MudContainer Class="align-self-center py-4 flex-1 mt-5" MaxWidth="MaxWidth.Medium">
+                <MudPaper Class="d-flex pa-4 mb-2 flex-wrap gap-y-4 justify-center" Elevation="6">
+                    <MudGrid Class="mx-auto pa-12" Justify="Justify.Center">
+                        <MudText Typo="Typo.h2">🥩 Preferencias  🥦</MudText>
+                    </MudGrid>
+                    @* Allergens dropdown pannel *@
+                    <div style="text-align: left">
+                    <MudContainer Class="d-flex gap-3">
+                    <MudExpansionPanels MultiExpansion="true">
+                        <MudExpansionPanel>
+                            <TitleContent>
+                                <div class="d-flex">
+                                    <MudIcon Icon="@Icons.Material.Filled.Info" class="mr-3"></MudIcon>
+                                    <MudText Typo="Typo.h6" Color="Color.Info">Ocultar productos con <strong>Alergenos</strong></MudText>
+                                </div>
+                            </TitleContent>
+                            <ChildContent>
+                                @foreach (var category in _categories!) {
+                                    <div class="checkbox">
+                                        <MudText Typo="Typo.subtitle1">
+                                            <b>@category.Name</b>
+                                            <img src="@category.Icon" Alt="@category.Name" Width="25" Height="25" Fluid="true" />
+                                            <br>
+                                            @foreach (var allergen in _allergens[category.Name]) {
+                                                <MudCheckBox @bind-Checked="@boolList[allergen.Name]" Size="Size.Medium" Color="Color.Info"> </MudCheckBox>
+                                                <MudTooltip Text="@allergen.Description" Arrow="true" Placement="Placement.Top">
+                                                    <MudText>@allergen.Name</MudText>
+                                                </MudTooltip>
+                                            }
+                                        </MudText>
+                                    </div>
+                                }
+                                <div style="text-align: center">
+                                    <MudContainer>
+                                        <MudButton Class="mr-16" Variant="Variant.Filled" Color="Color.Dark" OnClick="cleanRestrictions">Limpiar</MudButton>
+                                        <MudButton Class="ml-16" Variant="Variant.Filled" Color="Color.Info" OnClick="saveNewPreferences">Guardar</MudButton>
+                                    </MudContainer>
+                                </div>
+                            </ChildContent>
+                        </MudExpansionPanel>
+                    </MudExpansionPanels>
+                    </MudContainer>
+                    </div>
+                    <center>
+                         @*Container for the Buttons*@
+                        <MudContainer Class="d-flex gap-4" Height="900px">
+                            @*Container for the Buttons*@
+                            <MudButton Size="Size.Large" Variant="Variant.Filled" EndIcon="@Icons.Filled.KeyboardReturn" Style="background-color: #42A5F5; color: white; width: 421px" Href="/UserProfile">Regresar</MudButton>
+                        </MudContainer>
+                    </center>
+                </MudPaper>
+            </MudContainer>
+
+        }
+    </Loading>
+
+</div>
+
+
+@code {
+    private bool _isLoading = true;
+    // Variables for the allergens dropdown
+    private IEnumerable<AllergenCategory>? _categories;
+    private Dictionary<string,  List<Allergen>> _allergens = new Dictionary<string,  List<Allergen>>();
+    private Dictionary<string,  bool> boolList = new Dictionary<string, bool>();
+    public string? UserEmail { get; set; }
+    PersonalUser? _personalUser;
+    List<string> selected_allergens = new List<string>();
+
+    //Initialize page
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthenticationService.GetValueAsync();
+        UserEmail = await AuthenticationService.GetLoggedUserEmail();
+        // Initialize allergens dropdown
+        await getCategories();
+        await fillAllergenDictionary();
+        fillBooleanDictionary();
+        // Load User Preferences
+        await LoadPersonalUser();
+        await loadAllergensPreferences();
+        _isLoading = false;
+    }
+
+    private async Task fillAllergenDictionary ()
+    {
+        foreach (var category in _categories!) {
+            IEnumerable<Allergen> _allergenList =
+                 await AllergenService.GetAllergenByCategoryAsync(category.Name);
+            List<Allergen> _allergenElements = _allergenList.ToList();
+            _allergens.Add(category.Name, _allergenElements);   
+
+        }
+    }
+
+    private void fillBooleanDictionary ()
+    {
+        foreach (var category in _categories!)
+        {
+            foreach (var allergen in _allergens[category.Name])
+            {
+                boolList.Add(allergen.Name, false);
+            }
+        }
+    }
+
+    private async Task getCategories() {
+        _categories = await AllergenService.GetCategoriesAsync();
+    }
+
+    // Loads the allergens preferences of the user
+    private async Task loadAllergensPreferences()
+    {
+        if (UserEmail != null)
+        {
+            IEnumerable<UserFoodPreferences?> preferences = await UserFoodPreferencesService.GetAllRestrictionsAsync(UserEmail);
+            if (preferences.Count() != 0)
+            {
+                foreach (var allergen in preferences)
+                {
+                    selected_allergens.Add(allergen!.FoodRestriction);
+                }
+            }
+            foreach (var restriction in preferences)
+            {
+                boolList[restriction!.FoodRestriction] = true;
+            }
+        }
+    }
+
+    // Gets the Personal User from the database, the user data is loaded from the email.
+    public async Task LoadPersonalUser()
+    {
+        _personalUser = await PersonalUserService.GetPersonalUserByEmail(UserEmail!);
+    }
+
+    // Cleans all checkboxes and stored filters
+    private async Task cleanRestrictions()
+    {
+        await deleteStoredRestrictions();
+        foreach (var category in _categories!)
+        {
+            foreach (var allergen in _allergens[category.Name])
+            {
+                boolList[allergen.Name] = false;
+            }
+        }
+        Snackbar.Add("Filtros removidos", Severity.Normal);
+    }
+
+    // Cleans all checkboxes and stored filters
+    private async Task deleteStoredRestrictions()
+    {
+        bool deletedPreferences = false;
+        foreach (var restriction in boolList.Keys)
+        {
+            if (deletedPreferences == false && boolList[restriction] == true)
+            {
+                await UserFoodPreferencesService.deleteAllRestrictionsPreferences(UserEmail!);
+                deletedPreferences = true;
+            }
+        }
+    }
+
+    /* Stores the new preferences in the DB */
+    private async Task saveNewPreferences()
+    {
+        await deleteStoredRestrictions();
+        foreach (var restriction in boolList.Keys)
+        {
+            if (boolList[restriction] == true)
+            {
+                Console.WriteLine(restriction);
+                await UserFoodPreferencesService.AddUserFoodPreferencesAsync(new UserFoodPreferences(UserEmail!, restriction));
+            }
+        }
+        Snackbar.Add("Se han guardado sus preferencias", Severity.Success);
+    }
+}

@@ -1,0 +1,55 @@
+﻿@page "/redirect/{hash}"
+
+@using Domain.Utilities.Entities
+@using Application.Utilities
+@using Application.Utilities.Implementations
+
+@inject IRedirectInformationService RedirectInformationService
+@inject NavigationManager NavManager
+
+<div class="container">
+    <Loading IsLoading="_isLoading">
+        <MudGrid Class="mt-16 d-block">
+            <MudText Align="Align.Center" Typo="Typo.h6">Este link ya ha expirado o ha sido utilizado.</MudText>
+            <center>
+                Para generar uno nuevo haga click
+                <MudLink Align="Align.Center" Typo="Typo.body1" Color="Color.Info" Href="/enter-email" Underline="Underline.Hover"> aquí</MudLink>
+            </center>
+        </MudGrid>
+    </Loading>
+
+</div>
+
+
+@code {
+
+    [Parameter]
+    public string? hash { get; set; }
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        RedirectInformation redirectInfo = await RedirectInformationService.GetRedirectInformationByHash(hash);
+
+        if (redirectInfo!= null)
+        {
+            if (!redirectInfo.VerifyExpirationDate())
+            {
+                string link = redirectInfo.Route + redirectInfo.Param;
+                NavManager.NavigateTo(link);
+                await RedirectInformationService.DeleteRedirectInformation(redirectInfo);
+                _isLoading = false;
+
+            }
+            else
+            {
+                await RedirectInformationService.DeleteRedirectInformation(redirectInfo);
+                _isLoading = false;
+            }
+        }
+        else
+        {
+            _isLoading = false;
+        }
+    }
+}

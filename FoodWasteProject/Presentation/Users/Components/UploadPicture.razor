@@ -1,0 +1,109 @@
+﻿@*/* CD-US-1.2 Profile Picture
+ * Collaborators:
+ * - Álvaro Miranda
+ * - Nathan Miranda
+ *
+ * - Summary: Upload Picture
+ */*@
+@using System
+@using System.ComponentModel.DataAnnotations
+@using Application.Users
+@using Application.Users.Implementations
+@using Domain.Users.Entities
+@using Presentation.Users.Models
+@using Presentation.Users.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using System.IO
+@using Microsoft.AspNetCore.Hosting
+@using Microsoft.Extensions.Logging
+@using BC = BCrypt.Net.BCrypt;
+@inject ISnackbar Snackbar
+
+@inject IWebHostEnvironment Environment
+
+<!-- Upload Picture -->
+<MudContainer >
+<MudStack Class="justify-center d-flex flex-column flex-grow-1 gap-4"  Justify="Justify.Center" Spacing="0">
+    <center>
+        <MudAvatar  Class="mx-auto" Image=@imgSrc Style="height: 200px; width: 200px"></MudAvatar>
+    </center>
+    
+
+    <InputFile id="fileInput" OnChange="HandleSubmit" hidden multiple />
+
+    <MudButton  HtmlTag="label"
+        Size="Size.Large"
+            Class="blue darken-1 text-white my-5 mx-auto" Style="width: 200px"
+           StartIcon="@Icons.Filled.Image"
+            Label="Subir Imagen"
+            for="fileInput">Subir Imagen</MudButton>
+
+   
+</MudStack>
+</MudContainer >
+
+@code {
+
+    //event callback for to the father component
+    [Parameter]
+    public EventCallback<string> OnValidSubmit { get; set; }
+    public string imgSrc = "";
+
+    protected override void OnInitialized()
+    {
+        imgSrc = "../images/Default_User.png";
+    }
+
+    private async Task HandleSubmit(InputFileChangeEventArgs _event)
+    {
+        if (_event.File != null)
+        {
+            await LoadFiles(_event);
+            await OnValidSubmit.InvokeAsync(imgSrc);
+        }
+        else
+        {
+            await OnValidSubmit.InvokeAsync(null);
+        }
+    }
+
+    private List<IBrowserFile> loadedFiles = new();
+    private long maxFileSize = 1024 * 1000;
+    private int maxAllowedFiles = 1;
+    // private bool isLoading;
+
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        // isLoading = true;
+        loadedFiles.Clear();
+
+        foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
+        {
+            try
+            {
+                loadedFiles.Add(file);
+
+
+                string fileName = Path.GetRandomFileName();
+                fileName = fileName.Replace('/', '_');
+                fileName = fileName.Replace('.', '_');
+                fileName = fileName + ".png";
+                var path = Path.Combine(Environment.ContentRootPath,"wwwroot\\UsersImage", fileName);
+
+                
+                await using FileStream fs = new(path, FileMode.Create);
+                await file.OpenReadStream(maxFileSize).CopyToAsync(fs);
+
+                var relativePath = "../UsersImage/" + fileName;
+                imgSrc = relativePath;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Snackbar.Add(ex.Message, Severity.Error);
+            }
+        }
+
+        // isLoading = false;
+    }
+}

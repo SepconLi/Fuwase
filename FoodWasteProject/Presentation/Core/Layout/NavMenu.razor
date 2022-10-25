@@ -1,0 +1,207 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@using Application.Authentication
+@using Application.Authentication.Implementations
+@using Domain.Users.Repositories
+@using Domain.Users.Entities
+@using Application.Users.Implementations
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Application.Users
+@using Domain.Core.Exceptions
+@using Domain.Core.Helpers
+@using Domain.Core.ValueObjects
+@using Presentation.Core.Components
+@using Presentation.Core.Layout
+@using Presentation.Users.Models
+@using Presentation.Notifications.Pages
+@using Application.Notifications;
+
+@inject INotificationService NotificationService
+@inject IAuthenticationService AuthenticationService
+@inject NavigationManager NavManager
+@inject WebsiteAuthenticator WebAutenticator
+@inject IUserService UserService
+@inject IPersonalUserService PersonalUserService
+
+<div style="width:100%; background-color:Black;margin-top:65px">
+    <center>
+        <MudButtonGroup Style="background-color:black;" Variant="Variant.Filled">
+            <MudButton StartIcon="@Icons.Filled.Home" Href="/" Style="color:white; width: 150px; height: 50px; font-size: 17px">Home</MudButton>
+
+            <AuthorizeView Roles="Personal">
+                <Authorized>
+                    <MudButton StartIcon="@Icons.Filled.ListAlt" Href="/productsList" Style="color:white; width: 180px; height: 50px; font-size: 17px">Productos</MudButton>
+                    <MudButton StartIcon="@Icons.Filled.AddBox" Href="/donate" Style="color:white; width: 180px; height: 50px; font-size: 17px">Donación</MudButton>
+                    <MudButton StartIcon="@Icons.Filled.RoomService" Href="/donationList" Style="color:white; width: 180px; height: 50px; font-size: 17px">Solicitar</MudButton>
+                    <MudButton StartIcon="@Icons.Filled.Inventory" Href="/requestList" Style="color:white; width: 240px; height: 50px; font-size: 17px">Sus Solicitudes</MudButton>
+                    <MudButton StartIcon="@Icons.Filled.ConnectWithoutContact" Href="/campaignList" Style="color:white; width: 180px; height: 50px; font-size: 17px">Campañas</MudButton>
+                </Authorized>
+            </AuthorizeView>
+
+            <AuthorizeView Roles="Business">
+                <Authorized>
+                    <MudButton StartIcon="@Icons.Filled.AddBox" Href="/donate" Style="color:white; width: 180px; height: 50px; font-size: 17px">Donación</MudButton>
+                    <MudButton StartIcon="@Icons.Filled.Inventory" Href="/requestList" Style="color:white; width: 240px; height: 50px; font-size: 17px">Sus Solicitudes</MudButton>
+                    <MudButton StartIcon="@Icons.Filled.ConnectWithoutContact" Href="/campaignList" Style="color:white; width: 250px; height: 50px; font-size: 17px"> Ver Campañas</MudButton>
+                    <MudButton StartIcon="@Icons.Filled.ControlPoint" Href="/campaignRegistration" Style="color:white; width: 250px; height: 50px; font-size: 17px">Crear Campañas</MudButton>
+                </Authorized>
+            </AuthorizeView>
+
+
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <MudButton StartIcon="@Icons.Filled.ChecklistRtl" Href="/verify-business" Style="color:white; width: 350px; height: 50px; font-size: 17px">Verificar Empresas</MudButton>
+                </Authorized>
+            </AuthorizeView>
+
+            <MudButton StartIcon="@Icons.Filled.Info" Href="/about" Style="color:white; width: 220px; height: 50px; font-size: 17px">Acerca de </MudButton>
+
+            <AuthorizeView Roles="Personal, Business, Admin">
+                <NotAuthorized>
+                    <MudButton Href="/enter-email" StartIcon="@Icons.Filled.CheckCircle" Style="color:white; width: 220px; height: 50px; font-size: 17px">Activar Cuenta</MudButton>
+                </NotAuthorized>
+            </AuthorizeView>
+              <AuthorizeView Roles="Personal, Business">
+                <Authorized>
+                    <MudIcon Icon="@Icons.Filled.CircleNotifications" Size="Size.Large" onclick="@(()=> ToggleOpen())" Style="color:white;height: 50px"/> 
+                    <MudPopover Open="@_isOpen" AnchorOrigin="Origin.BottomRight" Elevation="10" TransformOrigin="Origin.TopRight" style="transition-duration: 251ms; transition-delay: 0ms; width:350px;">
+                        <NotificationList></NotificationList>
+	                 </MudPopover>
+                </Authorized>
+            </AuthorizeView>
+
+            <MudMenu AnchorOrigin="Origin.BottomCenter" FullWidth="true" TransformOrigin="Origin.TopCenter " ActivationEvent="@MouseEvent.MouseOver">
+                <ActivatorContent>
+                    <AuthorizeView Roles="Personal, Business, Admin">
+                        <NotAuthorized>
+                            <MudButton StartIcon="@Icons.Filled.AccountCircle" Style="color:white; width: 220px; height: 50px; font-size: 17px">Ingresar</MudButton>
+                        </NotAuthorized>
+                    </AuthorizeView>
+
+                </ActivatorContent>
+                <ChildContent>
+                    <MudMenuItem Href="/LoginPage">Iniciar sesión</MudMenuItem>
+                    <MudMenuItem Href="/UserRegistration">Registrarse</MudMenuItem>
+                </ChildContent>
+
+            </MudMenu>
+
+            <AuthorizeView Roles="Personal">
+                <Authorized>
+                    <MudMenu Class="px-14" FullWidth="true" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" ActivationEvent="@MouseEvent.MouseOver">
+                        <ActivatorContent>
+                            <MudAvatar Size="Size.Medium" Image=@UserImageSrc Style="background-color: #00000000">
+                            </MudAvatar>
+                        </ActivatorContent>
+                        <ChildContent>
+                            <MudMenuItem Href="/UserProfile">Perfil</MudMenuItem>
+                            <MudMenuItem OnClick="logout">Cerrar sesión</MudMenuItem>
+                        </ChildContent>
+                    </MudMenu>
+                </Authorized>
+                <Authorizing>
+                    Autorización en proceso...
+                </Authorizing>
+            </AuthorizeView>
+
+            <AuthorizeView Roles="Business">
+                <Authorized>
+                    <MudMenu Class="px-14" FullWidth="true" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" ActivationEvent="@MouseEvent.MouseOver">
+                        <ActivatorContent>
+                            <MudAvatar Size="Size.Medium" Image=@UserImageSrc  Style="background-color: #00000000">
+                            </MudAvatar>
+                        </ActivatorContent>
+                        <ChildContent>
+                            <MudMenuItem Href="/BusinessUserProfile">Perfil</MudMenuItem>
+                            <MudMenuItem OnClick="logout">Cerrar sesión</MudMenuItem>
+                        </ChildContent>
+                    </MudMenu>
+                </Authorized>
+                <Authorizing>
+                    Autorización en proceso...
+                </Authorizing>
+            </AuthorizeView>
+
+
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <MudMenu Class="px-14" FullWidth="true" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" ActivationEvent="@MouseEvent.MouseOver">
+                        <ActivatorContent>
+                            <MudAvatar Size="Size.Medium" Style="background-color: #00000000">
+                                <MudIcon Icon="@Icons.Filled.AccountCircle" Size="Size.Large" />
+                            </MudAvatar>
+                        </ActivatorContent>
+                        <ChildContent>
+                            <MudMenuItem OnClick="logout">Cerrar sesión</MudMenuItem>
+                        </ChildContent>
+                    </MudMenu>
+                </Authorized>
+                <Authorizing>
+                    Autorización en proceso...
+                </Authorizing>
+            </AuthorizeView>
+
+        </MudButtonGroup>
+    </center>
+</div>
+
+@code {
+    int counter { get; set; }
+    public string? UserEmail { get; set; }
+    private string UserImageSrc = "../images/Default_User.png";
+    User? _user;
+
+    public async Task logout()
+    {
+        await WebAutenticator.LogoutAsync();
+        UserImageSrc = "../images/Default_User.png";
+        NavManager.NavigateTo("/");
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await AuthenticationService.GetValueAsync();
+            UserEmail = await AuthenticationService.GetLoggedUserEmail();
+            await LoadUser();
+            counter = await NotificationService.GetNumberUnRead(UserEmail);
+        }
+        catch (Exception ex)
+        {
+             Console.WriteLine(ex.Message);
+        }
+
+       
+
+    }
+
+    //Gets the Personal User from the database, the user data is loaded from the email.
+    public async Task LoadUser()
+    {
+        try
+        {
+            _user = await UserService.GetUserByEmail(UserEmail);
+            UserImageSrc = _user.Profile_Picture;
+            
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+    }
+
+    public bool _isOpen;
+
+	public async Task ToggleOpen()
+	{
+		if (_isOpen)
+			_isOpen = false;
+		else
+			_isOpen = true;
+	}
+}
+

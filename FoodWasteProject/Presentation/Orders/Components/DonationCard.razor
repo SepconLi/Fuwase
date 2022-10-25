@@ -1,0 +1,66 @@
+﻿@*
+-Los Macacos
+
+Collaborators:
+- Josher Ramirez
+- Sirlany Mora
+- Aaron Campos
+- Estefany Ramirez
+- David Rojas
+
+- Summary: component that shows us the data of the donation, such as its donor and products.
+*@
+
+@using Domain.Products.Entities
+
+
+
+<link href="/css/components/Card.css" rel="stylesheet" />
+
+<div class = "card" style="width:70%;  margin: 0 auto; margin-top:10px"> 
+    <div style="border-style:solid;  padding-left: 25px; width:60%; display:block;">
+        <MudButton  Href="@getLink(id)" Style="font-size:17px" StartIcon="@Icons.Filled.AddBox">@Description</MudButton>
+        @if (!Name.Equals("Anonimo"))
+        {
+            <MudText Style="font-size:large; margin-top: 2px;">Nombre del Donador: @Name </MudText>
+        }
+        <MudText Style="font-size:large; margin-top: 5px;">@Provincia, Costa Rica</MudText>
+        <MudText Style="font-size:large; margin-top: 5px;">Lista de productos: @productList </MudText>
+        <MudText Style="font-size:large; margin-top: 5px;">Fecha de creación: @CreationDate.ToString("dd-MM-yyyy") </MudText>
+        <MudText Style="font-size:large; margin-top: 5px; margin-bottom: 15px;">Cantidad de productos: @ProductsCount </MudText>
+    </div>
+    <div style="width:100%; text-align:right">
+        <MudButton Variant="Variant.Filled" Color="Color.Info" Href="@getLink(id)" Style="margin-top:10%; margin-right: 15px;padding:20px 20px; margin-bottom: 5%; font-size:17px">Ver detalles</MudButton>
+    </div>
+</div>
+
+
+@code {
+    // TODO: Check null safety in Name, Expiration, Quantity and Brand 
+    [Parameter]
+    public int id { get; set; }
+    [Parameter]
+    public string? Name { get; set; }
+    [Parameter]
+    public string? Provincia { get; set; } = "Desconocido";
+    [Parameter]
+    public DateOnly Expiration { get; set; }
+    // TODO: Change Image type to one that suits the database's type for Image
+    [Parameter]
+    public string? Image { get; set; }
+    [Parameter]
+    public string? productList { get; set; } = "No hay productos disponibles";
+    [Parameter]
+    public DateTime CreationDate { get; set; }
+    [Parameter]
+    public int ProductsCount { get; set; }
+    [Parameter]
+    public string Description { get; set; }
+
+    public Product? Product { get; set; }
+
+    private string getLink(int id)
+    {
+        return "/donation/" + id;
+    }
+}

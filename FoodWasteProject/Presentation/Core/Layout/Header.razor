@@ -1,0 +1,18 @@
+﻿@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Application.Authentication
+@using Application.Authentication.Implementations
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject WebsiteAuthenticator WebAutenticator
+@inject NavigationManager Nav
+@inject IAuthenticationService AuthenticationService
+
+<MudAppBar Class="blue default" Fixed="true" Elevation="0" Style="height=100px">
+    <MudImage Src="../images/ucr_logo.png" Alt="ucr_logo" Fluid="true" />
+    <MudImage Src="../images/fw_logo.png" Alt="fw_logo" Fluid="true" />
+    <MudSpacer />
+
+    
+</MudAppBar>
+

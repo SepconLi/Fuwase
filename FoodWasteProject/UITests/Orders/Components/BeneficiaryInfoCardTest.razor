@@ -1,0 +1,18 @@
+﻿@using Presentation.Orders.Components
+
+@inherits TestContext
+
+@code {
+	[Fact]
+	public void BeneficiaryInfoCardTes(){
+		//Arrange
+		var context = new TestContext();
+
+		//act
+		var cut = context.Render(
+			@<BeneficiaryInfoCard BeneficiaryName = "Julio"></BeneficiaryInfoCard>
+		);
+		//assert
+		cut.Markup.Should().Contain("Julio");
+	}
+}

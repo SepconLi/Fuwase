@@ -1,0 +1,22 @@
+﻿@using Application.Locations
+@using Application
+@using Domain.Locations.Entities
+@using Presentation.Core.Models
+
+@inject ILocationService LocationService
+
+@using Presentation.Core.Components
+@inherits TestContext
+
+@code {
+    [Fact]
+    public void DropdownDisplaysCorrectText()
+    {
+        // act
+        // cut = component under test
+        var cut = Render(@<LocationDropdown></LocationDropdown>);
+        // assert
+        cut.Markup.Should().Contain("", "", "");
+    }
+
+}

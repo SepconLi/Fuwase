@@ -1,0 +1,77 @@
+﻿<!--
+This document is for the EPIC ALV-DO-3 Statistics
+-->
+@* Project includes *@
+@using Application
+@using Application.Statistics
+@using Application.Users
+@using Domain.Core.ValueObjects
+@using Domain.Statistics.Entities
+@using Domain.Users.Entities
+@using Presentation.Core.Models
+@using Presentation.Statistics.Components
+@using Presentation.Core.Components
+
+@* System includes *@
+@using LanguageExt
+@using Microsoft.AspNetCore.Components
+@using System.Globalization
+
+@inject IStatisticService StatisticService
+@inject IUserService UserService
+
+
+@if (_isLoading)
+{
+    <h1>Loading...</h1>
+}
+else
+{
+    <h2 style="margin-top:20px ; margin-bottom: 20px" align="center"
+    id="table-title">Top 5 empresas donadoras</h2>
+    <center>
+          <div class="card justify-center">
+            <div class="container" id="donation-card">
+                <MudTable Items="@_leaderboard!.Take(5)" Hover="true" >
+                    <HeaderContent>
+                        <MudTh>Posición</MudTh>
+                        <MudTh>Empresa</MudTh>
+                        <MudTh>Donaciones</MudTh>
+                    </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Posición" >@incrementPosition()</MudTd>
+                            <MudTd DataLabel="Empresa">@context.User_Id</MudTd>
+                            <MudTd DataLabel="Donaciones">@context.Donation_Amount</MudTd>  
+                        </RowTemplate>
+                </MudTable> 
+            </div>
+        </div>
+    </center> 
+}
+
+@code {
+    public IEnumerable<Statistic>? _leaderboard;
+    private bool _isLoading = true;
+    private int position = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await LoadLeaderboard();
+        _isLoading = false;
+    }
+
+    private int incrementPosition()
+    {
+        if (position<5)
+        {
+            position++;
+        }
+        return position;
+    }
+
+    public async Task LoadLeaderboard()
+    {
+        _leaderboard = await StatisticService.GetTopBusinessDonors();
+    }   
+}

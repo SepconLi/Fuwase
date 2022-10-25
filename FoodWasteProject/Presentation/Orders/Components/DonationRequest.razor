@@ -1,0 +1,113 @@
+﻿@*
+-Los Macacos
+
+Collaborators:
+- Josher Ramirez
+- Sirlany Mora
+- Aaron Campos
+- Estefany Ramirez
+- David Rojas
+
+
+- Summary: Component that shows us the request for a donation.
+
+*@
+@using Application.Orders
+@using Application.Users
+@using Domain.Orders.Entities
+@using Domain.Users.Entities
+@using Domain.Notifications.Entities
+@using Application.Notifications
+@using MudBlazor
+
+@inject NavigationManager _navigationManager
+@inject IOrderService OrderService
+@inject IDialogService DialogService
+@inject IPersonalUserService PersonalUserService
+@inject INotificationService NotificationService
+
+<link href="/css/components/Card.css" rel="stylesheet" />
+
+
+
+@if (_isLoading)
+{
+	<LoadingCardsComponent></LoadingCardsComponent>
+}
+else
+{
+
+    <div class = "card" style="width:70%;  margin: 0 auto; margin-top:10px"> 
+        <div style="border-style:solid;  padding-left: 25px; width:80%; display:block;">
+            <MudButton Style="font-size:17px" StartIcon="@Icons.Filled.AddBox">Solicitud #@order.Id</MudButton>
+            <MudText>Solicitante: @RecipientName </MudText>
+            <MudText>Estado: @order.statusDictionary[order.OrderStatus] </MudText>
+	        <MudButton Variant="Variant.Filled" Color="Color.Info" Href="@getLink(order.Id)" Style="margin-top:10px; margin-right: 10px; margin-bottom: 10px;">Ver detalles</MudButton>
+            @if (order.OrderStatus.Equals("P"))
+            {
+                <MudButton OnClick="@AcceptRequest"Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Done" Color="Color.Success">Aceptar</MudButton>
+                <MudButton OnClick="@RejectRequest"Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error">Rechazar</MudButton>
+            }
+        </div>
+    </div>
+}
+
+@code {
+
+    private bool _isLoading = false;
+
+    public EventCallback<Order> OnValidSubmit { get; set; }
+    [Parameter]
+    public Order order { get; set; }
+    [Parameter]
+    public string RecipientName { get; set; }
+
+
+    private async Task AcceptRequest()
+    {
+        Order _order;
+        _order = await OrderService.GetOrderByIdAsync(order.Id);
+        _order.OrderStatus = "A";
+        await OrderService.AcceptOrderAsync(_order);
+
+        var notificationRecipient = new Notification(_order.RecipientId, "Se ha aceptado su solicitud de donación", "/requestDetails/" + order.Id, false,DateTime.Now);
+        await NotificationService.addNotification(notificationRecipient);
+        var notificationdonor = new Notification(_order.DonorId, "Has aceptado la solicitud de donación", "/requestDetails/" + order.Id, false,DateTime.Now);
+        await NotificationService.addNotification(notificationdonor);
+        
+        var parameters = new DialogParameters();
+        parameters.Add("orderId","/requestDetails/"+order.Id);
+        DialogService.Show<DonationRequestAccepted>("Solicitud aceptada",parameters);
+
+    }
+
+    private async Task RejectRequest()
+    {
+        Order _order;
+        _order = await OrderService.GetOrderByIdAsync(order.Id);
+        _order.OrderStatus = "R";
+        await OrderService.RejectOrderAsync(_order);
+
+        var notificationRecipient = new Notification(_order.RecipientId, "Se ha rechazado su solicitud de donación", "/requestDetails/" + order.Id, false,DateTime.Now);
+        await NotificationService.addNotification(notificationRecipient);
+
+         var notificationDonor = new Notification(_order.DonorId, "Has rechazado la solicitud de donación", "/requestDetails/" + order.Id, false,DateTime.Now);
+        await NotificationService.addNotification(notificationDonor);
+
+        var parameters = new DialogParameters();
+        parameters.Add("orderId","/requestDetails/"+order.Id);
+        DialogService.Show<DonationRequestRejected>("Solicitud rechazada",parameters);
+    }
+
+
+    private string getLink(int id)
+    {
+        return "/requestDetails/" + id;
+    }
+
+    private async Task<string?> getRecipientName()
+    {
+        PersonalUser? recipientUser = await PersonalUserService.GetPersonalUserByEmail(order.RecipientId);
+        return recipientUser.Name;
+    }
+}

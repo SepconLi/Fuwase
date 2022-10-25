@@ -1,0 +1,172 @@
+﻿@*
+    CD-US-5.1 View business user profile
+    As a registered business user I want to be able to view my account information in a profile so I can verify that my information is correct.
+    Collaborators:
+    - Álvaro Miranda
+    - Nathan Miranda
+    - Mariana Murillo
+    - Emmanuel Zúñiga
+
+    This Blazor page displays the Business user information, for this the user's email is used to obtain the data from the database
+    subsequently each text field is updated with the user data.
+*@
+
+@page "/BusinessUserProfile"
+
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Application.Users
+@using Application.Users.Implementations
+@using Application.Authentication
+@using Application.Authentication.Implementations
+@using Application.Statistics
+@using Domain.Core.Exceptions
+@using Domain.Core.Helpers
+@using Domain.Core.ValueObjects
+@using Domain.Users.Repositories
+@using Domain.Users.Entities
+@using Presentation.Core.Components
+@using Presentation.Core.Layout
+@using Presentation.Users.Models
+
+@*Services Injections*@
+@inject IUserService UserService
+@inject IClientService ClientService
+@inject IBusinessUserRepository BusinessUserService
+@inject IStatisticService StatisticService
+@inject WebsiteAuthenticator WebAutenticator
+@inject NavigationManager Nav
+@inject IAuthenticationService AuthenticationService
+
+@*Business User information container*@
+<div class="container">
+    <Loading IsLoading="_isLoading">
+        @if (_businessUser is null)
+        {
+            <h4 class="text-danger">El perfil del usuario ingresado no existe.</h4>
+        }
+        else
+        {
+            <MudContainer Class="align-self-center py-4 flex-1 mt-5" MaxWidth="MaxWidth.Medium">
+                <MudPaper Class="d-flex pa-4 mb-2 flex-wrap gap-x-8 gap-y-4 justify-center" Elevation="6">
+                    <MudGrid Class="mx-auto pa-12" Justify="Justify.Center">
+                        <MudText Typo="Typo.h2">🥩 @_businessUser.Business_Name 🍓</MudText>
+                    </MudGrid>
+                    <MudContainer Class="d-flex flex-nowrap gap-4">
+                        @*Container for the Business Logo*@
+                        <MudContainer Class="justify-center gap-x-15 ml-15">
+                            <MudAvatar Image=@_businessUser.Profile_Picture Style="height: 193px; width: 193px" />
+                            @if (rank is not null)
+                            {
+                                <MudText Class = "ml-8" Typo="Typo.subtitle1">Donador @rank</MudText>
+                                <MudImage Class = "ml-14" Src=@rankMedal Width="75" Height="75" Alt="Ranking"/>
+                            }
+                        </MudContainer>
+                        @*Container for the User Basic information*@
+                        <MudContainer Class="mr-13">
+
+                            <!--Business User Email-->
+
+                        <MudStack Justify="Justify.Center" Spacing="0">
+                                <MudText Typo="Typo.h6">Correo Electrónico</MudText>
+                                <MudPaper Class="pa-3" Style="width:300px">@_businessUser.Email</MudPaper>
+                            </MudStack>
+
+                            <!--Business User PhoneNumber-->
+
+                        <MudStack Justify="Justify.Center" Spacing="0">
+                                <MudText Typo="Typo.h6">Número de Teléfono</MudText>
+                                <MudPaper Class="pa-3" Style="width:300px">@_businessUser.PhoneNumber</MudPaper>
+                            </MudStack>
+
+                            <!--Business User Legal Document-->
+                        <MudStack Justify="Justify.Center" Spacing="0">
+                                <MudText Typo="Typo.h6">Cédula Júridica</MudText>
+                                <MudPaper Class="pa-3" Style="width:300px">@_businessUser.Legal_Document</MudPaper>
+                            </MudStack>
+
+                            <!--Business User Aliance Start-->
+                        <MudStack Justify="Justify.Center" Spacing="0">
+                                <MudText Typo="Typo.h6">Inicio de la Alianza</MudText>
+                                <MudPaper Class="pa-3" Style="width:300px">@_businessUser.Alliance_Start</MudPaper>
+                        </MudStack>
+
+                            <!--Business User Strikes-->
+                        <MudStack Justify="Justify.Center" Spacing="0">
+                            <MudText Typo="Typo.h6">Strikes</MudText>
+                            <MudPaper Class="pa-3" Style = "width:300px">@_businessUser.Strikes</MudPaper>
+                        </MudStack>
+
+                        </MudContainer>
+                    </MudContainer>
+                    @*Container for the Buttons and the User Location information*@
+                    <MudContainer Class="d-flex flex-nowrap gap-4">
+                        @*Container for the Buttons*@
+                        <MudContainer>
+                            <MudStack Justify="Justify.Center">
+                                <MudButton Class="mt-2 ml-3 mr-2" Size="Size.Large" Variant="Variant.Filled" EndIcon="@Icons.Filled.Subject" Style="background-color: #01579B; color: white; width: 80%" Href="/history">Historial de Donaciones</MudButton>
+                                <MudButton Class="mt-1 ml-3 mr-2" Size="Size.Large" Variant="Variant.Filled" EndIcon="@Icons.Filled.Subject" Style="background-color: #42A5F5; color: white; width: 80%" Href="/RequestedDonationList">Historial de Recepciones</MudButton>
+                                <MudButton Class="mt-1 ml-3 mr-2" Size="Size.Large" Variant="Variant.Filled" EndIcon="@Icons.Filled.InsertChartOutlined" Style="background-color: #42A5F5; color: white; width: 80%"  Href="/userStatistics">Estadisticas</MudButton>
+
+                            </MudStack>
+
+                        </MudContainer>
+                        @*Container for the location information*@
+                        <MudContainer >
+                            <!--Business User Person in Charge-->
+
+                        <MudStack Justify="Justify.Center" Spacing="0">
+                                <MudText Typo="Typo.h6">Persona a Cargo</MudText>
+                                <MudPaper Class="pa-3" Style="width:300px">@_businessUser.Person_In_Charge</MudPaper>
+                            </MudStack>
+
+
+                            <MudStack Justify="Justify.Center" Spacing="0">
+                                <MudText Typo="Typo.h6">Ubicación</MudText>                                
+                                <MudPaper Class="pa-3" Style = "width:300px">@_businessUser.Province , @_businessUser.District, @_businessUser.Town</MudPaper>
+                            </MudStack>
+
+                        </MudContainer>
+                    </MudContainer>
+                    @*Button for the public profile*@
+                    <MudButton Size="Size.Large" Variant="Variant.Filled" EndIcon="@Icons.Filled.Person" Style="background-color: #01579B; color: white; width: 287px" Href=@publicLink>Ver tu perfil público</MudButton>
+
+                </MudPaper>
+            </MudContainer>
+
+        }
+    </Loading>
+
+</div>
+
+
+@code {
+    public string? UserEmail { get; set; }
+    private bool _isLoading = true;
+    BusinessUser? _businessUser;
+    private string? publicLink { get; set; }
+    private string? rank {get; set; }
+    private string? rankMedal { get; set; }
+    public bool AnonimatusOn { get; set; }
+
+
+
+    //Initialize page
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthenticationService.GetValueAsync();
+        UserEmail = await AuthenticationService.GetLoggedUserEmail();
+        await LoadBusinessUser();
+        var ranking = await StatisticService.GetUserRanking(_businessUser.Email);
+        rank = ranking.Item1;
+        rankMedal = ranking.Item2;
+        _isLoading = false;
+        publicLink = "/PublicProfile/" + _businessUser.HashedEmail;
+    }
+
+    //Gets the Business User from the database, the user data is loaded from the email.
+    public async Task LoadBusinessUser()
+    {
+        _businessUser = await BusinessUserService.GetBusinessUserByEmail(UserEmail);
+    }
+}

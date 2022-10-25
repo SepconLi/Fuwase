@@ -1,0 +1,124 @@
+﻿@*
+    CD-US-1.1 User's general information
+ * Collaboratos:
+ * - Álvaro Miranda
+ * - Nathan Miranda
+ * - Mariana Murillo
+ * - Emmanuel Zúñiga
+ * 
+ * - Summary: general user information form component
+
+*@
+
+@using System.Text.RegularExpressions
+@using System
+@using System.ComponentModel.DataAnnotations
+@using Application.Users
+@using Domain.Users.Entities
+@using Presentation.Users.Models
+@using Presentation.Users
+@using LanguageExt
+
+@inject IUserService UserService
+@inject ISnackbar Snackbar
+
+<!--    username    -->
+<MudTextField Style=@($"--mud-palette-primary:{Colors.Blue.Accent3};") Class="InputStandard" T="string" Label="Nombre de usuario" Required="true" HelperText="Ejemplo: foodwaste.ucr" RequiredError="¡Nombre de usuario requerido!" @bind-Value="u_name" TextChanged="HandleSubmit" />
+
+<!--    Email   -->
+<MudTextField Style=@($"--mud-palette-primary:{Colors.Blue.Accent3};") Class="InputStandard" T="string" Label="Correo electrónico" HelperText="Ejemplo: foodwaste@email.com" Required="true" RequiredError="Correo electrónico requerido!" @bind-Value="email" TextChanged="HandleSubmit"
+              Validation="@(new EmailAddressAttribute() {ErrorMessage = "Correo electrónico es inválido"})" />
+
+
+<!--    Phone number    -->
+@*<MudNumericField Style=@($"--mud-palette-primary:{Colors.Blue.Accent3};") Class="InputStandard" T="int" Label="Número de teléfono" Required="true" RequiredError="¡Teléfono requerido!" HideSpinButtons="true"
+                 Min="10000000" Max="99999999" HelperText="Ejemplo: 88888888"
+                 ErrorText="No es número valido" @bind-Value="p_num" TextChanged="HandleSubmit" />*@
+
+<MudTextField Style=@($"--mud-palette-primary:{Colors.Blue.Accent3};") Class="InputStandard" T="string" Label="Número de teléfono" RequiredError="¡Teléfono requerido!" HelperText="Ingrese su número de teléfono, ejemplo: 88888888" Required="true"
+              Validation="@(new Func<string, IEnumerable<string>>(ValidIdNumber))" @bind-Value="p_num" TextChanged="HandleSubmit"/>
+
+@code {
+    //variables
+    public string? u_name { get; set; } = null!;
+    public string? email { get; set; } = null!;
+    public string p_num { get; set; } = String.Empty;
+
+
+    //modelo de usuario 
+    private UserModel Model { get; set; } = new PersonalUserModel();
+
+    //event callback for to the father component
+    [Parameter]
+    public EventCallback<UserModel> OnValidSubmit { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    private async Task HandleSubmit()
+    {
+
+        if (u_name != null && email != null && p_num != null && p_num != String.Empty)
+        {
+            User user_email_validator = await UserService.GetUserByEmail(email);
+            User user_userName_validator = await UserService.GetUserByUserName(u_name);
+
+            if (user_userName_validator == null)
+            {
+                if (user_email_validator == null)
+                {
+                    Model.UserName = u_name;
+                    Model.Email = email;
+                    Model.PhoneNumber = Int32.Parse(p_num);
+                    await OnValidSubmit.InvokeAsync(Model);
+
+                }
+                else  //user name already exists
+                {
+
+                    Snackbar.Add("El correo ya esta registrado", Severity.Error);
+                    email = null;
+                    await OnValidSubmit.InvokeAsync(null);
+                }
+
+            }
+            else // email already exists
+            {
+                Snackbar.Add("El nombre de usuario ya esta registrado", Severity.Error);
+                u_name = null;
+                await OnValidSubmit.InvokeAsync(null);
+            }
+
+
+        }
+        else
+        {
+            await OnValidSubmit.InvokeAsync(null);
+        }
+
+    }
+
+    private IEnumerable<string> ValidIdNumber(string pNum)
+    {
+        if (string.IsNullOrWhiteSpace(pNum))
+        {
+            yield return "El número de teléfono es requerido!";
+            yield break;
+        }
+        if (pNum.Length < 8)
+            yield return "Debe ingresar un número con al menos 8 digitos.";
+        if (pNum.Length > 8)
+            yield return "Debe ingresar un número con no más de 8 digitos";
+        if (Regex.IsMatch(pNum, @"[A-Z]"))
+            yield return "Sólo debe ingresar números.";
+        if (Regex.IsMatch(pNum, @"[a-z]"))
+            yield return "Sólo debe ingresar números.";
+        if (!Regex.IsMatch(pNum, @"[0-9]"))
+            yield return "No ingresó números.";
+        if (Regex.IsMatch(pNum, @"[!@#$%^&*()_+=\[{\]};:<>|./?,-]"))
+            yield return "No debe contener símbolos.";
+    }
+
+
+}

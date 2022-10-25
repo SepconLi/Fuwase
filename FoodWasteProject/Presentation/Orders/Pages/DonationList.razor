@@ -1,0 +1,314 @@
+﻿@*
+-Los Macacos
+
+Collaborators:
+- Josher Ramirez
+- Sirlany Mora
+- Aaron Campos
+- Estefany Ramirez
+- David Rojas
+
+- Summary: This Blazor page shows a list of available donations
+*@
+@using MudBlazor
+@using Presentation.Core.Models
+@using Presentation.Orders.Components
+@using Domain.Donations.DTOs
+@using Application.Donations
+@using Domain.Products.Entities
+@using Application.Orders 
+@using Domain.Orders.DTOs
+@using Domain.Users.Entities
+@using Application.Users
+@using Application.Authentication
+@using Domain.Donations.Entities;
+
+@inject IUserService UserService 
+@inject IOrderService OrderService
+@inject IDonationService DonationService
+@inject IAuthenticationService AuthenticationService
+
+@page "/DonationList"
+<link href="/css/components/Card.css" rel="stylesheet" />
+
+
+<PageTitle>Donaciones Disponibles</PageTitle>
+    <div class="text-center">
+    <h1 style="margin-top:20px; margin-bottom: 3%"> Donaciones Disponibles</h1>
+    </div>
+
+    @if (_isLoading)
+    {
+    <LoadingCardsComponent></LoadingCardsComponent>
+}
+else
+{
+    @*<ProductCard Name="Leche" Expiration='@expiration' Brand="Dos Pinos" Quantity=5 Restrictions="Lácteo" Image="https://walmartcr.vtexassets.com/arquivos/ids/217176/Leche-Dos-Pinos-Liquida-Homogenizada-1000Ml-1-31087.jpg?v=637606850747600000"> </ProductCard>*@
+
+    @if (_donations == null)
+    {
+        <center><MudAlert Severity="Severity.Error">No hay donaciones disponibles</MudAlert></center>
+    }
+    else
+    {
+        <center>
+            <div style="width:60%; margin-left: 12%">
+                <MudContainer Class="d-flex gap-3" Style="align-content: center">
+                <MudExpansionPanels MultiExpansion="true">
+                    <MudExpansionPanel>
+                        <TitleContent>
+                            <div class="d-flex">
+                                <MudIcon Icon="@Icons.Material.Filled.Info" class="mr-3"></MudIcon>
+                                <MudText Typo="Typo.h6" Color="Color.Info">Filtrar por <strong>Localización</strong></MudText>
+                            </div>
+                        </TitleContent>
+                        <ChildContent>
+                            <center>
+                                <LocationDropdown LocationChange="@HandleLocationChange"
+                                        @ref="Dropdown"/>
+                            </center>
+
+                            <MudButton Variant="Variant.Filled" Color="Color.Dark"
+                                    Size="Size.Large" Style="width:75px;height:40px; margin-top:20px; margin-right:30px"
+                                    OnClick="clearFields">
+                                Limpiar
+                            </MudButton>
+                        </ChildContent>
+                    </MudExpansionPanel>
+                </MudExpansionPanels>
+                </MudContainer>
+            </div>
+        </center>
+        @foreach (var item in _donations)
+        {
+            // var show = true;
+            if (!item.DonorId.Equals(actualUser))
+            {
+                if (ApplyFilters(item))
+                {
+                    updateDonationProductsData(item.Id);
+                    <DonationCard Description=@item.Description  id=@item.Id Name =@getNameByEmail(item.DonorId,_userInformation!) 
+                        Provincia=@item.Province productList=@productList CreationDate=@(item.CreationDate) ProductsCount=@productQuantity></DonationCard>
+                }
+            }
+        }
+    }   
+    
+
+
+    @code {
+
+    private bool _isLoading = true;
+
+    private IEnumerable<DonationDTO>? _donations;
+
+    private LocationDropdown? Dropdown;
+
+    private IList<InformacionDTO>? _userInformation;
+    private IList<InformacionDTO>? _userBusinessInformation;
+    private IList<InformacionDTO>? _anomInformation;
+
+    private IReadOnlyCollection<Product>? _products;
+
+    private IEnumerable<DonationDTO>? _donationsWithProduct;
+
+    private string? actualUser = null;
+
+    private string? productList = "";
+
+    private int productQuantity = 0;
+
+    private User? donador { get; set; }
+    // private Donation? _donation;
+
+    private Donation? _FiltroDonacion= new Donation();
+    //private bool requiredDropdown = false;
+
+
+    [Parameter]
+    public int donationId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await getActualUser();
+        await LoadDonations();
+    }
+
+    private string getLink(int id)
+    {
+        return "/donation/" + id;
+    }
+
+    private bool ApplyFilters(DonationDTO donation)
+    {
+        bool show = false;
+        if (_FiltroDonacion!.County==""|| _FiltroDonacion.County==null)
+        {
+            show = true;
+        }
+        else
+        {
+            if (donation.District == _FiltroDonacion.District)
+            {
+                if (donation.County == _FiltroDonacion.County)
+                {
+                    if (donation.Province==_FiltroDonacion.Province)
+                    {
+                        show = true;
+                    }
+                }
+            }
+        }            
+        return show;
+    }
+
+    /**
+     * Updates the values of productList and productQuantity every time that the page is
+     * loading a new DonationCard
+     */
+    private void updateDonationProductsData(int id)
+    {
+        /// Obtains the list of donations and, depending on its ID, obtains the products that contain it
+        productList = "";
+        foreach(var donationDto in _donationsWithProduct!)
+        {
+            if(donationDto.Id == id)
+            {
+                _products = donationDto.Products;
+            }
+        }
+        foreach(var product in _products!)
+        {
+            if (product.ExpirationDate > DateTime.Today)
+            {
+                productList += " ";
+                productList += product.Name + ",";    
+            }
+        }
+        productList = productList.TrimStart(' ');
+        /// This is the string to be displayed as the summary of the products
+        productList = productList.TrimEnd(',');
+        /// This is the ammount of products to be displayed in the card
+        productQuantity = _products.Count;
+    }
+
+    private async Task LoadDonations()
+    {
+        ///<summary>
+        /// Is responsible for loading donations on the page
+        ///</summary>
+        _donations = await DonationService.GetDonationAsync();
+        //_donation = await DonationService.GetByIdAsync(donationId);
+        //_products = _donation!.Products;
+
+
+
+        _userInformation = await OrderService.getInformationPersonalAsync();
+        _userBusinessInformation = await OrderService.getInformationBusinessAsync();
+        _anomInformation =  await OrderService.getAnonInformationAsync();
+
+        _userInformation.Concat(_userBusinessInformation);
+
+
+        _donationsWithProduct = await DonationService.GetAllDonationsWithProductsAsync();
+        //await GetUserByEmail(_donation.DonorId);
+        _isLoading = false;
+
+    }
+
+    private string? getNameByEmail(string email,IList<InformacionDTO> userInformations)
+    {
+        foreach(var item in _anomInformation!){
+            if (email.Equals(item.Email) && item.Anom_Preference == false)
+            {
+                 return item.UserName;   
+            }
+        }
+        return "Anonimo";
+    }
+
+    /* These functions were replaced by updateDonationProductsData(int id) */
+
+    private string? getProductListOfDonation(int id)
+    {
+        ///<summary>
+        /// Obtains the list of donations and, depending on its ID, obtains the products that contain it
+        ///</summary>
+        foreach(var donationDto in _donationsWithProduct!)
+        {
+            if(donationDto.Id == id)
+            {
+                _products = donationDto.Products;
+            }
+        }
+        productList = "";
+        foreach(var product in _products!)
+        {
+            if (product.ExpirationDate > DateTime.Today)
+            {
+                productList += " ";
+                productList += product.Name + ",";    
+            }
+        }
+        productList = productList.TrimStart(' ');
+        productList = productList.TrimEnd(',');
+
+        return productList;
+    }
+
+    private int getProductQuantity(int id)
+    {
+        foreach(var donationDto in _donationsWithProduct!)
+        {
+            if(donationDto.Id == id)
+            {
+                _products = donationDto.Products;
+            }
+        }
+        return _products!.Count;
+    }
+
+    public async Task getActualUser()
+    {
+        await AuthenticationService.GetValueAsync();
+        actualUser = await AuthenticationService.GetLoggedUserEmail();
+        Console.WriteLine("AU: "+actualUser);
+    }
+
+    private async Task GetUserByEmail(string email)
+    {
+        donador = await UserService.GetUserByEmail(email);
+    }
+
+    public string getLinkProfile()
+    {
+        return " /PublicProfile/" + donador!.HashedEmail;
+    }
+
+    /* Handling response from LocationDropdown Component */
+    private void HandleLocationChange(LocationModel locModel)
+    {
+        if (!string.IsNullOrEmpty(locModel.Province) &&
+        !string.IsNullOrEmpty(locModel.County) &&
+        !string.IsNullOrEmpty(locModel.District))
+        {
+
+            _FiltroDonacion!.Province = locModel.Province;
+            _FiltroDonacion.County = locModel.County;
+            _FiltroDonacion.District = locModel.District;
+            //requiredDropdown = true;
+        }
+    }
+
+    private async Task clearFields()
+    {
+           var options = new DialogOptions { CloseOnEscapeKey = true };
+            _FiltroDonacion!.Province="";
+            _FiltroDonacion.County="";
+            _FiltroDonacion.District="";
+
+            //requiredDropdown = false;
+            Dropdown!.Clear();
+        }
+    }
+}

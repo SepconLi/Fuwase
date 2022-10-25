@@ -1,0 +1,78 @@
+﻿@* /*
++-Los Macacos
++
++Collaborators:
++-Josher Ramirez
++-Sirlany Mora
++-Aaron Campos
++-Estefany Ramirez
++-David Rojas
++
++-Summary: Component that edits the map.
++*/*@
+
+@using MudBlazor
+@using GoogleMapsComponents
+@using GoogleMapsComponents.Maps
+@using GoogleMaps.LocationServices;
+
+<div class="@isMine" style="width:50%; height:50%">
+	<div class="user">@sender</div>
+	<a href=@mapLink target=”_blank” style="font-weight:bold">
+	<GoogleMap @ref="@map1" Id="map1" Options="@mapOptions" Height="80%"></GoogleMap>
+	Abrir en Maps</a>
+</div>
+
+@code {
+
+	[Parameter]
+	public double longt { get; set; }
+	[Parameter]
+	public double latit { get; set; }
+	[Parameter]
+	public string isMine { get; set; } = "sent";
+	[Parameter]
+	public string sender { get; set; } = "Anónimo";
+
+	private string mapLink { get; set; } = "";
+	
+
+	private GoogleMap map1;
+	private MapOptions mapOptions;
+
+
+	protected override async void OnInitialized()
+	{
+		var latitude = longt;
+		var longitude = latit;
+
+
+		mapOptions = new MapOptions()
+			{
+				Zoom = 20,
+				Center = new LatLngLiteral()
+				{
+					Lat = latitude,
+					Lng = longitude
+				},
+				MapTypeId = MapTypeId.Roadmap
+			};
+
+		string strlng = longitude.ToString().Replace(',', '.');
+		string strlat = latitude.ToString().Replace(',', '.');
+		mapLink = "https://www.google.com/maps/search/" + strlat + "," + strlng;
+	}
+
+	private async Task addMarker(){
+
+		var marker = await Marker.CreateAsync(this.map1.JsRuntime, new MarkerOptions()
+        {
+            Position = await this.map1.InteropObject.GetCenter(),
+            Map = this.map1.InteropObject,
+            Icon = new Icon()
+            {
+                Url = "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"
+            }
+        });
+	}
+}

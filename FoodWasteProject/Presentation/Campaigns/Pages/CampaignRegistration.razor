@@ -1,0 +1,401 @@
+﻿<!--
+This document is for the US: ALV-DO-4.1 Create a donation campaign
+    and was done by Jimena Gdur Vargas.
+-->
+
+@* Project includes *@
+@using Application
+@using Application.Authentication
+@using Application.Authentication.Implementations
+@using Application.Locations
+@using Application.Campaigns
+@using Domain.Core.ValueObjects
+@using Domain.Campaigns.Entities
+@using Domain.Locations.Entities
+@using Presentation.Campaigns.Components
+@using Presentation.Campaigns.Models
+@using Presentation.Core.Components
+@using Presentation.Core.Models
+@using Presentation.Products.Components
+@using Presentation.Products.Models
+
+@* System includes *@
+@using LanguageExt
+@using Microsoft.AspNetCore.Components
+@using System.Globalization
+@using Microsoft.AspNetCore.Components.Authorization
+
+@* Injecting system services *@
+@inject IDialogService DialogService
+@inject NavigationManager navigationManager
+@* Injecting project services *@
+@inject ICampaignService CampaignService
+@inject IAuthenticationService AuthenticationService
+
+@page "/campaignRegistration"
+@* Including Card style sheet *@
+<link href="/css/components/Card.css" rel="stylesheet" />
+<link href="/css/components/InputStandard.css" rel="stylesheet" />
+
+<h1 style="margin-top:20px ; margin-bottom: 20px" align="center">
+    Registro de una campaña
+</h1>
+
+    @********************* Campaign information ******************************@
+@if (!_IsLoading)
+{
+    <AuthorizeView Roles="Business">
+    <Authorized>
+        <center>
+        <div class="card">
+            <div class="container" id="registration-card">
+                <br/>
+                <h3 align="center">Información de la campaña</h3>
+                @* Campaign Name Component *@
+                <MudItem md="30" lg="12">
+                <MudTextField @bind-Value="campaign.Name"
+                    Class="InputStandard"
+                    Label="Nombre de la Campaña" Required="true"
+                    Counter="50" MaxLength="50" Immediate="true" Lines="1"
+                    Variant="Variant.Outlined">
+                </MudTextField>
+                </MudItem>
+
+                @* Campaign Description Component *@
+                <MudItem md="30" lg="12">
+                <MudTextField @bind-Value="campaign.Description"
+                    Class="InputStandard"
+                    Label="Descripción" Required="true"
+                    Counter="100" MaxLength="100" Immediate="true" Lines="2"
+                    Variant="Variant.Outlined">
+                </MudTextField>
+                </MudItem>
+            
+                <MudGrid Spacing="3" Justify="Justify.Center">
+                    <MudItem md="30" lg="6">
+                        @* Campaign Start Date Component *@
+                        <MudDatePicker @bind-Date="campaign.StartDate"
+                            Style=@(
+                                $"--mud-palette-primary:{Colors.Blue.Accent3}")
+                            Class="InputStandard" Color="Color.Info"
+                            Variant="Variant.Outlined" Margin="Margin.Normal"
+                            Label="Fecha de comienzo" Required="true" />
+                    </MudItem>
+                    <MudItem md="30" lg="6">
+                        @* Campaign End Date Component *@
+                        <MudDatePicker @bind-Date="campaign.EndDate"
+                            Style=@(
+                                $"--mud-palette-primary:{Colors.Blue.Accent3}")
+                            Class="InputStandard" Color="Color.Info"
+                            Variant="Variant.Outlined" Margin="Margin.Normal"
+                            Label="Fecha de finalización" Required="true" />
+                    </MudItem>
+                </MudGrid>
+                <br />
+                <br />
+
+                @* Calling LocationDropdown component *@
+                <h3 align="center">Centro de recolección</h3>
+                <center>
+                    <LocationDropdown LocationChange="@HandleLocationChange"
+                        @ref="Dropdown" />
+                </center>
+
+                @* Input space for entering the exact location *@
+                <MudItem md="30" lg="12">
+                <MudTextField @bind-Value="campaign.ExactLocation"
+                    Class="InputStandard mt-10"
+                    Label="Escriba la ubicación exacta" Required="true"
+                    Counter="500" MaxLength="500" Immediate="true" Lines="5"
+                    Variant="Variant.Outlined">
+                </MudTextField>
+                </MudItem>
+
+                @* Checking if both required fields are filled *@
+                @if (campaign.Name != "" && campaign.Description != "" &&
+                    campaign.ExactLocation != "")
+                {
+                    requiredInput = true;
+                }
+            </div>
+        </div>
+
+        @********************** Campaign's products ******************************@
+
+        <br />
+        <h2 align="center">Lista de Productos</h2>
+
+        @* Listing all products added to a campaign in real time *@
+        <div class="card">
+            <div class="container" id="registration-card">
+                @if(_product_added == true)
+                {
+                    <CampaignProgress campaign=@campaign></CampaignProgress>
+                }
+                <CampaignProductsList campaign="campaign" products="products"/>
+                @* Displaying button to add a product to the campaign *@
+                <MudButton Variant="Variant.Filled" Color="Color.Info"
+                    OnClick="@((e) => openProductForm(maxWidth))">
+                    Agregar producto
+                </MudButton>
+            </div>
+        </div>
+
+        <br />
+
+        @************************ Campaign buttons *******************************@
+
+        @* Checking for required fields to activate button *@
+        @if (requiredDropdown == true && requiredInput == true &&
+            campaign.Products.Count != 0)
+        {
+            missingRequiredFields = false;
+        }
+
+        <MudGrid Justify="Justify.Center">
+                <MudItem lg="4">
+                    <MudButton Variant="Variant.Filled" Color="Color.Dark"
+                           Size="Size.Large" Style="width:360px;height:50px;"
+                           OnClick="clearFields">
+                        Limpiar
+                    </MudButton>
+                </MudItem>
+                <MudItem lg="4">
+                    <MudButton Variant="Variant.Filled" Color="Color.Success"
+                        Style=@(
+                            $"--mud-palette-success-text:{Colors.Shades.White};width:360px;height:50px;")
+                        Size="Size.Large" Disabled="missingRequiredFields"
+                        OnClick="registerCampaign">
+                        Crear campaña
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
+        <br />
+        </center>
+    </Authorized>
+    <NotAuthorized>
+		<MudAlert Severity="Severity.Warning">No cuentas con una cuenta de empresa.</MudAlert>
+	</NotAuthorized>
+    <Authorizing>
+        <h1>Espere</h1>
+    </Authorizing>
+    </AuthorizeView>
+}
+
+@code {
+    DialogOptions maxWidth = new DialogOptions
+    {
+        MaxWidth = MaxWidth.Small,
+        FullWidth = true,
+        CloseOnEscapeKey = true
+    };
+    private LocationDropdown? Dropdown;
+
+    /* Boolean values for validations */
+    private bool _product_added = false;
+    private bool requiredDropdown = false;
+    private bool requiredInput = false;
+    private bool missingRequiredFields = true;
+    private bool _IsLoading = true;
+
+    /* Campaign Model for storing input */
+    private Campaign campaign = new Campaign();
+    private List<CampaignProduct> products = new List<CampaignProduct>();
+
+    /*************************** On initialized ******************************/
+
+    // Initializing all the lists and dictionaries
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            campaign.CreatorEmail = await getActualUser();
+            _IsLoading = false;
+        }
+        catch (Exception e)
+        {
+            var options = new DialogOptions { CloseOnEscapeKey = true };
+            var dialog = DialogService.Show<NotLoggedIn>(
+                "Usted no ha iniciado sesión.", options);
+        }
+    }
+
+    /*************************** Handling location ***************************/
+
+    /* Handling response from LocationDropdown Component */
+    private void HandleLocationChange(LocationModel locModel)
+    {
+        if (!string.IsNullOrEmpty(locModel.Province) &&
+        !string.IsNullOrEmpty(locModel.County) &&
+        !string.IsNullOrEmpty(locModel.District))
+        {
+            campaign.Province = locModel.Province;
+            campaign.County = locModel.County;
+            campaign.District = locModel.District;
+            requiredDropdown = true;
+        }
+    }
+
+    /*************************** Handling Product ****************************/
+
+    /* Opens Product Form options */
+    async Task openProductForm(DialogOptions options)
+    {
+        var dialog = DialogService.Show<PopupCampaignProduct>(
+            "Ingrese los datos del producto", options);
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            ProductModel model = (ProductModel)result.Data;
+            HandleProductAddition(model);
+        }
+    }
+
+    /* Handling input from PopupProduct Component */
+    private void HandleProductAddition(ProductModel model)
+    {
+        if (hasRequiredFields(model) == true)
+        {
+            // Creating product from product model
+            CampaignProduct product = new CampaignProduct(model.Name, model.FoodType,
+            model.ProdType, model.Goal, model.Weight, model.Quantity);
+
+            // Adding product to campaign
+            campaign.AddProductToCampaign(product);
+            products = new List<CampaignProduct>(campaign.Products);
+            _product_added = true;
+        }
+    }
+
+    /* Checking product fields */
+    private bool hasRequiredFields(ProductModel model)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        if (!string.IsNullOrEmpty(model.Name) && model.Goal != 0 &&
+            !string.IsNullOrEmpty(model.ProdType) &&  model.Weight != 0 &&
+            !string.IsNullOrEmpty(model.FoodType))
+        {
+            if (hasRepeatedProduct(model) == false)
+            {
+                DialogService.Show<SubmittedProductDialog>(
+                "Información registrada correctamente", options);
+                campaign.Goal += model.Goal;
+                campaign.Raised += model.Quantity;
+                return true;
+            }
+            else
+            {
+                DialogService.Show<RepeatedProductError>(
+                "Ese producto ya existe ", options);
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /* Checking if product already exists */
+    private bool hasRepeatedProduct(ProductModel model)
+    {
+        List<CampaignProduct> products = new List<CampaignProduct>(campaign.Products);
+        foreach (CampaignProduct p in products)
+        {
+            if (model.Name.Equals(p.Name,
+            StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /************************ Campaign buttons *******************************/
+
+    /* Calls Campaign Service and stores campaign information */
+    private async Task registerCampaign()
+    {
+        if (campaign.StartDate <= DateTime.Today)
+        {
+            OpenWrongDateDialog("La fecha de inicio ya pasó o es hoy");
+        }
+        else if (campaign.StartDate <= DateTime.Today)
+        {
+            OpenWrongDateDialog("La fecha de finalización ya pasó o es hoy");
+        }
+        else if (campaign.EndDate <= campaign.StartDate)
+        {
+            OpenWrongDateDialog(
+                "La fecha de finalización no es mayor a la fecha de inicio");
+        }
+        else if (missingRequiredFields == false)
+        {
+            openConfirmationDialog();
+            if (campaign.CreatorEmail != "")
+            {
+
+                await CampaignService.AddCampaignAsync(campaign);
+            }
+            else
+            {
+                var options = new DialogOptions { CloseOnEscapeKey = true };
+                var dialog = DialogService.Show<NotLoggedIn>(
+                    "Usted no ha iniciado sesión.", options);
+            }
+        }
+        else
+        {
+            OpenRequiredDialog();
+        }
+
+    }
+
+    private async Task<string?> getActualUser()
+    {
+        await AuthenticationService.GetValueAsync();
+        return await AuthenticationService.GetLoggedUserEmail();
+    }
+
+    /************************ Clear every field *******************************/
+
+    private async Task clearFields()
+    {
+        
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var dialog = DialogService.Show<DeleteConfirmationDialog>(
+            "Desea limpiar los campos de la campaña? ", options);
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            campaign.Clear();
+            products = new List<CampaignProduct>(campaign.Products);
+            requiredDropdown = false;
+            requiredInput = false;
+            missingRequiredFields = true;
+            Dropdown.Clear();
+        }
+    }
+
+    /************************ Campaign Validation Popups *******************************/
+
+    private void openConfirmationDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        DialogService.Show<SubmittedCorrectlyDialog>
+        ("Su campaña fue registrada correctamente", options);
+    }
+
+    private void OpenRequiredDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        DialogService.Show<RequiredFieldsError>(
+            "Debe llenar los espacios obligatorios", options);
+    }
+
+    // Shows if expired date is valid or not
+    private void OpenWrongDateDialog(string message)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        DialogService.Show<WrongDateError>(
+            message, options);
+    }
+}

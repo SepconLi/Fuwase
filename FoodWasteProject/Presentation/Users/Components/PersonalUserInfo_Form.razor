@@ -1,0 +1,140 @@
+﻿@*/* CD-US-1.5 Personal User Information
+ * Collaboratos:
+ * - Álvaro Miranda
+ * - Nathan Miranda
+ * - Mariana Murillo
+ * - Emmanuel Zúñiga
+ * 
+ * - Summary:personal user information 
+ */*@
+
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Application.Users
+@using Application.Users.Implementations
+@using Domain.Core.Exceptions
+@using Domain.Core.Helpers
+@using Domain.Core.ValueObjects
+@using Domain.Users.Repositories
+@using Domain.Users.Entities
+@using Presentation.Core.Components
+@using Presentation.Core.Layout
+@using Presentation.Users.Models
+@using Presentation.Users.Components
+
+<!--PersonalUserInfo_Form-->
+<!-- Name -->
+
+<MudTextField Style=@($"--mud-palette-primary:{Colors.Blue.Accent3};") Class="InputStandard" T="string" Label="Primer nombre" Required="true" RequiredError="¡Nombre de la persona requerido!" HelperText="Escriba su nombre"
+              Validation="@(new Func<string, IEnumerable<string>>(validStringInput))"  @bind-Value="name" TextChanged="HandleSubmit"/>
+
+<!-- Lastname -->
+
+<MudTextField Style=@($"--mud-palette-primary:{Colors.Blue.Accent3};") Class="InputStandard" T="string" Label="Apellidos" Required="true" RequiredError="¡Apellidos requeridos!" HelperText="Escriba sus apellidos"
+              Validation="@(new Func<string, IEnumerable<string>>(validStringInput2))" @bind-Value="lastName" TextChanged="HandleSubmit"/>
+
+
+<!--    Identification Input        -->
+<MudTextField Style=@($"--mud-palette-primary:{Colors.Blue.Accent3};") Class="InputStandard" T="string" Label="Identificación" HelperText="Ingrese su número de cédula, ejemplo: 118522645" Required="true" RequiredError="¡Identificación requerida!" @ref="idField"
+              Validation="@(new Func<string, IEnumerable<string>>(ValidIdNumber))" @bind-Value="identification" TextChanged="HandleSubmit"/>
+
+@code {
+    //----------    Variables ----------
+    public string? name { get; set; } = null!;
+    public string? lastName { get; set; } = null!;
+    public string? identification { get; set; } = null!;
+
+
+
+    private PersonalUserModel Model = new();
+
+
+    [Parameter]
+    public EventCallback<PersonalUserModel> OnValidSubmit { get; set; }
+
+    /// <summary>
+    /// handles the user submit for the name, last name and identification
+    /// </summary>
+    /// <returns></returns>
+    private Task HandleSubmit()
+    {
+        if (name != null && lastName != null && identification != null)
+        {
+            Model.Name = name;
+            Model.LastName = lastName;
+            Model.IdNumber = identification;
+            return OnValidSubmit.InvokeAsync(Model);
+        }
+        else
+        {
+            return OnValidSubmit.InvokeAsync(null);
+        }
+
+    }
+
+
+    MudTextField<string> idField;
+
+    /// <summary>
+    /// finds out if the string input has the requirements
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    private IEnumerable<string> validStringInput(string str)
+    {
+        if (string.IsNullOrWhiteSpace(str))
+        {
+            yield return "El nombre es requerido!";
+            yield break;
+        }
+        if (Regex.IsMatch(str, @"[0-9]"))
+            yield return "No debe de ingresar números.";
+        if (Regex.IsMatch(str, @"[!@#$%^&*()_+=\[{\]};:<>|./?,-]"))
+            yield return "No debe de ingresar símbolos.";
+    }
+
+    /// <summary>
+    /// validates if the last name complies the requirments
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    private IEnumerable<string> validStringInput2(string str)
+    {
+        if (string.IsNullOrWhiteSpace(str))
+        {
+            yield return "El apellido es requerido!";
+            yield break;
+        }
+        if (Regex.IsMatch(str, @"[0-9]"))
+            yield return "No debe de ingresar números.";
+        if (Regex.IsMatch(str, @"[!@#$%^&*()_+=\[{\]};:<>|./?,-]"))
+            yield return "No debe de ingresar símbolos.";
+    }
+
+
+    /// <summary>
+    /// validates if the id input complies the requirements
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    private IEnumerable<string> ValidIdNumber(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            yield return "La identificación es requerida!";
+            yield break;
+        }
+        if (id.Length < 9)
+            yield return "Debe ingresar un número con al menos 9 digitos.";
+        if (id.Length > 9)
+            yield return "Debe ingresar un número con no más de 9 digitos";
+        if (Regex.IsMatch(id, @"[A-Z]"))
+            yield return "Sólo debe ingresar números.";
+        if (Regex.IsMatch(id, @"[a-z]"))
+            yield return "Sólo debe ingresar números.";
+        if (!Regex.IsMatch(id, @"[0-9]"))
+            yield return "No ingresó números.";
+        if (Regex.IsMatch(id, @"[!@#$%^&*()_+=\[{\]};:<>|./?,-]"))
+            yield return "No debe contener símbolos.";
+    }
+}

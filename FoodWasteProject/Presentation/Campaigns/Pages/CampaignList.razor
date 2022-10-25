@@ -1,0 +1,109 @@
+﻿<!-----------------------------------------------------------------------------
+This document is for the US:     LI-BE-6.1 List of active campaigns.
+    - 
+    And was done by a joint effort of members of IB.
+-------------------------------------------------------------------------------
+    Displays a list of all campaign created by corporate users.
+------------------------------------------------------------------------------>
+
+@* Project includes *@
+@using Application.Authentication
+@using Application.Campaigns
+@using Application.Orders
+@using Application.Users
+@using Domain.Campaigns.DTOs
+@using Domain.Orders.DTOs
+@using Domain.Users.Entities
+@using Presentation.Campaigns.Components
+@using Presentation.Orders.Components
+@* System includes *@
+@using MudBlazor
+
+@inject IUserService UserService 
+@inject IAuthenticationService AuthenticationService
+@inject ICampaignService CampaignService
+@inject IOrderService OrderService
+
+@page "/campaignList"
+
+<PageTitle>Campañas Disponibles</PageTitle>
+<div class="text-center">
+    <h1 style="margin-top:20px"> Campañas Disponibles</h1>
+</div>
+
+@if (_isLoading)
+{
+    <LoadingCardsComponent></LoadingCardsComponent>
+}
+else
+{
+    @if (_campaigns == null)
+    {
+        <center><MudAlert Severity="Severity.Error">No hay campañas disponibles</MudAlert></center>
+    }
+    else
+    {
+        @foreach (var item in _campaigns)
+        {
+            if (!item.CreatorEmail!.Equals(actualUser) && item.EndDate > date)
+            {
+                <center>
+                    <MudContainer Class="align-center" MaxWidth="MaxWidth.Medium">
+                    <div style="margin-top:3%">
+                        <CampaignCard id=@item.Id Name=@item.Name Province=@item.Province County=@item.County District=@item.District 
+                            Raised=@item.Raised Goal=@item.Goal Description=@item.Description></CampaignCard>                     
+                    </div>
+                </MudContainer>
+                </center>
+                _isEmpty = false;
+            }
+        }
+        if (_isEmpty == true)
+        {
+            <center><MudAlert Severity="Severity.Error">No hay campañas disponibles</MudAlert></center>
+        }
+    }
+}
+
+
+@code {
+    private bool _isEmpty = true;
+    private bool _isLoading = true;
+    private IEnumerable<CampaignDTO>? _campaigns;
+    private DateTime date = DateTime.Today;
+
+    private IList<InformacionDTO>? _userInformation;
+    private IList<InformacionDTO>? _userBusinessInformation;
+    private IList<InformacionDTO>? _anomInformation;
+
+    private string? actualUser = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await getActualUser();
+        await LoadCampaigns();
+    }
+
+    private async Task LoadCampaigns()
+    {
+        ///<summary>
+        /// Is responsible for loading Campaigns on the page
+        ///</summary>
+        _campaigns = await CampaignService.GetCampaignsAsync();
+         
+        _userInformation = await OrderService.getInformationPersonalAsync();
+        _userBusinessInformation = await OrderService.getInformationBusinessAsync();
+        _anomInformation =  await OrderService.getAnonInformationAsync();
+
+        _userInformation.Concat(_userBusinessInformation);
+
+        _isLoading = false;
+    }
+
+    public async Task getActualUser()
+    {
+        await AuthenticationService.GetValueAsync();
+        actualUser = await AuthenticationService.GetLoggedUserEmail();
+		Console.WriteLine("AU: "+actualUser);
+    }
+}

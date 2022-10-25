@@ -1,0 +1,142 @@
+﻿@*/* CD-US-2.1 Create login funcionality
+    * Collaboratos:
+    * - Álvaro Miranda
+    * - Nathan Miranda
+    * - Mariana Murillo
+    * - Emmanuel Zúñiga
+    *
+    * - Summary: login page component
+    */*@
+@page "/LoginPage"
+
+
+@using BC = BCrypt.Net.BCrypt;
+
+@using System
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Application.Users
+@using Application.Users.Implementations
+@using Domain.Core.Exceptions
+@using Domain.Core.Helpers
+@using Domain.Core.ValueObjects
+@using Domain.Users.Repositories
+@using Domain.Users.Entities
+@using Presentation.Core.Components
+@using Presentation.Core.Layout
+@using Presentation.Users.Models
+@using Presentation.Users.Components
+@using Application.Authentication
+@using Application.Authentication.Implementations
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+
+<!--validation injects-->
+@inject WebsiteAuthenticator WebsiteAuthenticator
+@inject NavigationManager NavManager
+@inject IAuthenticationService AuthenticationService
+
+<!--Validation services-->
+@inject IUserService UserService
+@inject ISnackbar Snackbar
+
+<link href="/css/components/InputStandard.css" rel="stylesheet" />
+
+
+<MudGrid Class="d-flex align-center justify-center">
+    <MudItem Class="justitfy-center" xs="6" sm="7">
+        <MudPaper Class="mt-16 gap-y-4 gap-x-2 py-8" Height="700px" Outlined="true" Square="false">
+
+
+            <MudForm @bind-IsValid="@success">
+                <MudContainer Class="pt-40 gap-y-8 justitfy-center">
+
+
+                    <MudText Class="pb-60" Align="Align.Center" Typo="Typo.h3">🥦Bienvenido a FoodWaste🥩</MudText>
+
+                    <br />
+
+                    <MudContainer Class="justitfy-center">
+                        <!--email input-->
+                        <MudTextField Style=@($"--mud-palette-primary:{Colors.Blue.Accent3};") Class="InputStandard" T="string" Label="Correo electrónico" HelperText="example@email.com" Required="true" RequiredError="¡Correo electrónico requerido!" @bind-Value="email"
+                                      Validation="@(new EmailAddressAttribute() {ErrorMessage = "¡Correo electrónico es inválido!"})" />
+                        <br />
+                        <!--password input-->
+                        <MudTextField Style=@($"--mud-palette-primary:{Colors.Blue.Accent3};") Class="InputStandard" T="string" Label="Contraseña" HelperText="Ingrese su contraseña"
+                                      InputType="InputType.Password" @ref="pwField1" @bind-Value="password" Required="true" RequiredError="Contraseña requerida" />
+
+                        <MudLink Color="Color.Info" Href="/enter-email" Underline="Underline.Hover">¿Olvidaste tu contraseña?</MudLink>
+
+                    </MudContainer>
+
+                    <!-- button to accept login -->
+                    <br />
+                    <MudContainer Class="ma-60 justitfy-center" MaxWidth="MaxWidth.Small">
+                        <MudButton Variant="Variant.Filled" @onclick="HandleUserSubmit" Disabled="@(!success)"
+                                   Class="ml-auto blue darken-1 text-white">Iniciar sesión  🥓</MudButton>
+
+                    </MudContainer>
+
+                    @*link to registration*@
+                    <br />
+                    <MudContainer Class="ma-20 justitfy-center" MaxWidth="MaxWidth.Small">
+                        <MudLink Color="Color.Info" Href="/UserRegistration" Underline="Underline.Hover">¿No tienes cuenta en FoodWaste? ¡Crea una!</MudLink>
+                    </MudContainer>
+                    <MudContainer Class="ma-20 justitfy-center" MaxWidth="MaxWidth.Small">
+                        <MudLink Color="Color.Info" Href="/enter-email" Underline="Underline.Hover">Activa tu cuenta aquí</MudLink>
+                    </MudContainer>
+                </MudContainer>
+
+            </MudForm>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    bool success;
+    public string? password { get; set; } = null!;
+    public string? email { get; set; } = null!;
+    MudTextField<string>? pwField1;
+
+    /// <summary>
+    /// handles the user submit login inputs and validates the veracity of the data
+    /// </summary>
+    private async void HandleUserSubmit()
+    {
+        success = false;
+        if (password != null && email != null)
+        {
+            User? user_email_validator = await UserService.GetUserByEmail(email);
+
+            if (user_email_validator != null)
+            {
+                if (user_email_validator.Status == 1)
+                {
+                    if (BC.Verify(password, user_email_validator.Password))
+                    {
+                        await WebsiteAuthenticator.LoginAsync(email, user_email_validator.Password);
+                        await AuthenticationService.GetValueAsync();
+                        NavManager.NavigateTo("/", true);
+                        Snackbar.Add("¡Bienvenido de vuelta!", Severity.Success);
+                    }
+                    else
+                    {
+
+                        Snackbar.Add("Las credenciales son inválidas", Severity.Error);
+                        password = null;
+                    }
+                } else if (user_email_validator.Status == 2)
+                {
+                    Snackbar.Add("Debes verificar tu cuenta para iniciar sesión. Revisa tu correo electrónico.", Severity.Error);
+                } else if (user_email_validator.Status == 3)
+                {
+                    Snackbar.Add("Tu cuenta empresarial está a la espera de ser verificada. Se te notificará al correo cuando el proceso haya sido completado.", Severity.Error);
+                }
+            }
+            else
+            {
+                Snackbar.Add("Las credenciales son inválidas", Severity.Error);
+            }
+
+        }
+    }
+}

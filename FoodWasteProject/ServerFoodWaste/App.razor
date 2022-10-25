@@ -1,0 +1,25 @@
+﻿<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true"
+            AdditionalAssemblies="@(new [] { typeof(MainLayout).Assembly })">
+        <Found Context="routeData">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <MudGrid Justify="Justify.Center" Class="mt-16">
+                    <MudForm>
+                        <MudText Align="Align.Left" Typo="Typo.h3">Nada que ver aquí...</MudText>
+                        <MudText Align="Align.Left" Typo="Typo.subtitle2">Esta dirección no existe</MudText>
+                        <br/>
+                        <MudText Align="Align.Left" Typo="Typo.h5">404 ERROR</MudText>
+                        <br/>
+                        <MudButton Class="pt-40" Href="/" Variant="Variant.Filled" StartIcon="@Icons.Rounded.ArrowLeft" Color="Color.Info" Size="Size.Large">Volver al inicio</MudButton>
+                        
+
+                    </MudForm>
+
+                </MudGrid>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

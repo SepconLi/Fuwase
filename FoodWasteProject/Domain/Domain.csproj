@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Locations\DTOs\**" />
+    <Compile Remove="Locations\ValueObjects\**" />
+    <Compile Remove="Users\ValueObjects\**" />
+    <EmbeddedResource Remove="Locations\DTOs\**" />
+    <EmbeddedResource Remove="Locations\ValueObjects\**" />
+    <EmbeddedResource Remove="Users\ValueObjects\**" />
+    <None Remove="Locations\DTOs\**" />
+    <None Remove="Locations\ValueObjects\**" />
+    <None Remove="Users\ValueObjects\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="CSharpFunctionalExtensions" Version="2.29.1" />
+    <PackageReference Include="LanguageExt.Core" Version="4.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.5" />
+    <PackageReference Include="MudBlazor" Version="6.0.10" />
+	<InternalsVisibleTo Include="UnitTests" />
+	<PrivatesVisibleTo Include="UnitTests" /> 
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Users\DTOs\" />
+  </ItemGroup>
+
+</Project>

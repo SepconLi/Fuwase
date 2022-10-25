@@ -1,0 +1,7 @@
+﻿{
+  "ConnectionStrings": {
+    "TestConnection": "Server=,
+    "(localdb)\\\\MSSQLLocalDB;Database=Lab2_Test;Trusted_Connection=true;\""
+  },
+  "SeedDataScript": "seed_data.sql"
+}

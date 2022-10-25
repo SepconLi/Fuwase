@@ -1,0 +1,44 @@
+﻿@*
+-Los Macacos
+
+Collaborators:
+- Josher Ramirez
+- Sirlany Mora
+- Aaron Campos
+- Estefany Ramirez
+- David Rojas
+
+- Summary: component showing donor location.
+*@
+<link href="/css/components/Card.css" rel="stylesheet" />
+
+<div class="card" style="width:70%;display: block;margin-left: auto;margin-right: auto; margin-bottom: 3%;"> 
+    <div style="padding-left: 25px; width:100%">
+        <h3 style="margin-left:25px; margin-top: 2%"><b>Ubicación de la Donación</b></h3>
+        <div style="display:flex; padding: 10px;">
+            <MudButton StartIcon=@Icons.Filled.LocationOn 
+            Href="@getLink(Provincia,Canton,Distrito)"Target="_blank" 
+            Style="margin-left:1%">@Distrito, @Canton, @Provincia, Costa Rica</MudButton>
+        </div>
+    </div>	
+</div>
+
+
+@code {
+    // TODO: Check null safety in Name, Expiration, Quantity and Brand 
+    [Parameter]
+    public string? Provincia { get; set; }
+    [Parameter]
+    public string? Canton { get; set; }
+    [Parameter]
+    public string? Distrito { get; set; }
+    [Parameter]
+    public string? Image { get; set; }
+
+
+    public string getLink(String provincia, String canton, String distrito)
+    {
+        return "https://www.google.com/maps/place/"+provincia+"+"+canton+"+"+distrito;
+    }
+
+}

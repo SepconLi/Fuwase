@@ -1,0 +1,21 @@
+﻿@inherits LayoutComponentBase
+@using MudBlazor
+
+<PageTitle>FoodWaste</PageTitle>
+
+<MudThemeProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+<div>
+    <Header/>
+</div>
+<div>
+    <NavMenu />
+</div>
+<main class="container" style="margin-bottom: 170px;">
+    @Body
+</main>
+<div style="bottom:0;width:100%;">
+    <FWFooter/> 
+</div>

@@ -1,0 +1,131 @@
+﻿@*
+CD-US-6.1: List of Unverified Business - Core Dummpers
+ CD-US-6.6: Accept Verified Business Account - Core Dummpers
+Collaborators:
+- Álvaro Miranda
+- Nathan Miranda
+- Mariana Murillo
+- Emmanuel Zúñiga
+
+This Blazor page displays a list of all unverified business accounts and its information. 
+Also allows the administrator to accept that unverified account and change its status in DB.
+*@
+
+@page "/verify-business"
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Application.Users
+@using Application.Users.Implementations
+@using Domain.Core.Exceptions
+@using Domain.Core.Helpers
+@using Domain.Core.ValueObjects
+@using Domain.Users.Repositories
+@using Domain.Users.Entities
+@using Microsoft.AspNetCore.Components.Authorization
+@using Presentation.Core.Components
+@using Presentation.Core.Layout
+@using Presentation.Users.Models
+@using LanguageExt
+@using Application.Authentication
+
+@inject IBusinessUserService BusinessUserService
+@inject IUserService UserService
+@inject IAuthenticationService AuthenticationService
+@inject IMailService MailService
+@inject ISnackbar Snackbar
+
+
+<MudGrid Justify="Justify.Center" Class="mt-16 d-flex align-center justify-center">
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            <MudItem xs="5" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudForm @ref="form" @bind-IsValid="@success">
+
+                        <!--    tittle  -->
+                        <MudText Class="pt-10 mb-10" Typo="Typo.h4">Verificar cuentas empresariales</MudText>
+
+                        <MudTable Items="@unverifiedAccounts" FixedHeader="@fixed_header" FixedFooter="@fixed_footer" Height="@(fixed_header || fixed_footer ?"400px":"")">
+                            <HeaderContent>
+                                <MudTh> Información </MudTh>
+                                <MudTh> @emptyLabel </MudTh>
+                                <MudTh> @emptyLabel </MudTh>
+                            </HeaderContent>
+                            <RowTemplate Context="account">
+                                <MudTd DataLabel="Información">
+                                    <MudAvatar Style="height: 95px; width: 95px" Image=@account.Profile_Picture Alt="Business logo" />
+                                 </MudTd>
+                                 <MudTd>
+                                        Nombre: @account.Business_Name
+                                        <br />
+                                        Correo electrónico: @account.Email
+                                        <br />
+                                        Cédula jurídica: @account.Legal_Document
+                                        <br />
+                                        Persona a cargo: @account.Person_In_Charge
+                                  </MudTd>
+                                  <MudTd DataLabel="Aceptar">
+                                        <MudButton Class="justify-center" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Check" OnClick="@(() => VerifyBusinessAccount(account.Email))" Style="background-color: #6dc067; color: white; width: 105px; height: 40px;">
+                                            Aceptar
+                                        </MudButton>    
+                                  </MudTd>
+                            </RowTemplate>
+                            <PagerContent>
+                                <MudTablePager PageSizeOptions="new int[]{2, 5, 10, 50, 100}" />
+                            </PagerContent>
+                        </MudTable>
+
+                    </MudForm>
+                </MudPaper>
+            </MudItem>
+        </Authorized>
+        <NotAuthorized>
+            <MudText Typo="Typo.h5">Usted no tiene los permisos necesarios para acceder a esta página.</MudText>
+        </NotAuthorized>
+    </AuthorizeView>
+    
+</MudGrid>
+
+@code {
+    bool fixed_header = true;
+    bool fixed_footer = false;
+    bool success;
+    string[] errors = { };
+    string emptyLabel = "          ";
+    MudForm form;
+    IList<BusinessUser>? unverifiedAccounts;
+    int unverifiedCount = 0;
+    string? adminEmail;
+    User? admin;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthenticationService.GetValueAsync();
+        adminEmail = await AuthenticationService.GetLoggedUserEmail();
+        admin = await UserService.GetUserByEmail(adminEmail);
+        unverifiedAccounts = await BusinessUserService.GetUnverifiedAccounts(3);
+        unverifiedCount = unverifiedAccounts.Length();
+    }
+
+    private async Task VerifyBusinessAccount(string selectedAccountEmail) 
+    {
+        BusinessUser businessUser = new BusinessUser();
+        for (int i = 0; i < unverifiedAccounts.Length(); i++)
+        {
+            if (unverifiedAccounts.ElementAt(i).Email == selectedAccountEmail)
+            {
+                businessUser = unverifiedAccounts.ElementAt(i);
+                unverifiedAccounts.RemoveAt(i);
+                break;
+            }
+        }
+        businessUser.Status = 1;
+        await UserService.UpdateUser(businessUser);
+        string link = "http://10.1.4.119/";
+        string subject = "Bienvenido a Food Waste: Su cuenta ha sido activada";
+        string msg1 = "Estimado/a usuario: \n\nSu cuenta en Food Waste ya ha sido activada. Para ingresar ingrese al siguiente link: "+link+ ".";
+        string msg2 = "Estimado/a usuario: <br><br>Su cuenta en Food Waste ya ha sido activada. Para ingresar haga click <a href=" + link + "> aquí </a>.";
+        await MailService.SendEmailAsync(businessUser.Email, subject, msg1, msg2);
+        Snackbar.Add("La empresa ha sido verificada.", Severity.Success);
+    }
+}

@@ -1,0 +1,31 @@
+﻿@*
+-Los Macacos
+
+Collaborators:
+- Josher Ramirez
+- Sirlany Mora
+- Aaron Campos
+- Estefany Ramirez
+- David Rojas
+
+- Summary: component that shows us that the donor requests his own donation, an alert appears indicating that this is not possible.
+*@
+
+<MudDialog>
+    <DialogContent>
+        <MudAlert Severity="Severity.Error">No puede solicitar su propia donación.</MudAlert>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Href="../" OnClick="Cancel">Volver a inicio</MudButton>
+        <MudButton Href = "../donationList" Color="Color.Primary" OnClick="Submit">Seguir explorando donaciones</MudButton>
+        <MudButton OnClick="Cancel">Cancelar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    void Cancel() => MudDialog.Cancel();
+}
+

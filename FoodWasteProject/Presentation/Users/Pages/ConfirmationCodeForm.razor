@@ -1,0 +1,151 @@
+﻿ @*
+CD-US-2.2 Forgot my password and CD-US-1.8 Verify Email - Core Dummpers
+
+Collaborators:
+- Álvaro Miranda
+- Nathan Miranda
+- Mariana Murillo
+- Emmanuel Zúñiga
+
+This Blazor page displays a form that allows the user to enter the code sent to their email address.
+*@
+
+@page "/confirmation-code/{entered_hash_email}"
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Application.Users
+@using Application.Users.Implementations
+@using Domain.Core.Exceptions
+@using Domain.Core.Helpers
+@using Domain.Core.ValueObjects
+@using Domain.Users.Repositories
+@using Domain.Users.Entities
+@using Presentation.Core.Components
+@using Presentation.Core.Layout
+@using Presentation.Users.Models
+@using LanguageExt
+@using Blazored.FluentValidation
+
+@inject IUserService UserService
+@inject IConfirmationCodeService ConfirmationCodeService
+@inject IMailService MailService
+@inject NavigationManager NavManager
+@inject ISnackbar Snackbar
+
+<link href="/css/components/InputStandard.css" rel="stylesheet" />
+
+<MudGrid Justify="Justify.Center" Class="mt-16 d-flex align-center justify-center">
+    <MudItem xs="5" sm="7">
+        <MudPaper Class="pa-4">
+            <MudForm @ref="form" @bind-IsValid="@success">
+
+                <!--    tittle  -->
+                <MudText Class="pt-10 mb-10" Typo="Typo.h4">Código de confirmación</MudText>
+
+                <!--    Code   -->
+                <MudNumericField Style=@($"--mud-palette-primary:{Colors.Blue.Accent3};") Class="InputStandard" T="int" Label="Ingrese el código enviado a su correo electrónico:" Required="true" RequiredError="¡Código de confirmación requerido!" HideSpinButtons="true"
+                   Min="100000" Max="999999" HelperText="Escríba un código de seis dígitos"
+                   ErrorText="No es número valido" @bind-Value="entered_code" />
+
+                <div class="d-flex align-center justify-space-between mt-6 pb-10">
+                        <MudButton Variant="Variant.Filled" @onclick="HandleCodeSubmit" Disabled="@(!success)" Class="ml-auto blue darken-1 text-white">Siguiente</MudButton>
+                </div>
+                <div class="d-flex align-left justify-space-between mt-6 pb-10">
+                    <MudButton Variant="Variant.Filled" @onclick="Resend">Reenviar código</MudButton>
+                </div>
+                <MudNavLink Href="/enter-email" Icon="@Icons.Filled.ArrowLeft">Regresar</MudNavLink>
+            </MudForm>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+
+    bool success;
+    string[] errors = { };
+    MudForm form;
+    [Parameter]
+    public string? entered_hash_email { get; set; }
+    public string? entered_email { get; set; }
+    int entered_code = 0;
+    private string? _doesNotExistMessage = null;
+    User? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await UserService.GetUserByHashedEmail(entered_hash_email);
+        entered_email = user.Email;
+
+    }
+    /// <summary>
+    /// handles and validates the code input submit
+    /// </summary>
+    /// <returns></returns>
+    private async Task HandleCodeSubmit()
+    {
+
+        ConfirmationCode existingCode = await ConfirmationCodeService.GetCodeByEmail(entered_email);
+        if(existingCode != null)
+        {
+            // Verify if the code entered matches the one stored in the database for that email address.
+            if (existingCode.Code == entered_code)
+            {
+                await ConfirmationCodeService.DeleteCodeForEmail(entered_email);
+                if (user.Status==2)
+                {
+                    user.Status = 1;
+                    await UserService.UpdateUser(user);
+                    Snackbar.Add("Tu cuenta ha sido activada.", Severity.Success);
+                    string link = "/";
+                    NavManager.NavigateTo(link);
+
+                } else 
+                {
+                    // Redirects to the next step (reset password)
+                    string link = "/reset-password/" + entered_hash_email;
+                    NavManager.NavigateTo(link);
+                    Snackbar.Add("El código ingresado coincide con el enviado por correo.", Severity.Success);
+                }
+            }
+            else
+            {
+                _doesNotExistMessage = "El código ingresado no coincide con el enviado por correo";
+                Snackbar.Add(_doesNotExistMessage, Severity.Error);
+            }
+
+        } else
+        {
+            _doesNotExistMessage = "No existe un código para el correo electrónico ingresado. Inténtelo de nuevo.";
+            Snackbar.Add(_doesNotExistMessage, Severity.Error);
+        }
+
+    }
+
+    public async Task Resend()
+    {
+        //Generate random code
+        Random confirmationCode = new Random();
+        int _confirmationCode = confirmationCode.Next(100000, 1000000);
+        ConfirmationCode code = new ConfirmationCode(user.Email, _confirmationCode);
+        //Add Confirmation Code to DB
+        await ConfirmationCodeService.AddConfirmationCode(code);
+        string subject;
+        string msg1;
+        string msg2;
+        if (user.Status == 2)
+        {
+            //Send Email with code
+            subject = "Food Waste: Verifica tu cuenta";
+            msg1 = "Estimado/a usuario: \n\nTu código de confirmación para activar tu cuenta es: " + code.Code;
+            msg2 = "Estimado/a usuario: <br><br>Tu código de confirmación para activar tu cuenta es: " + code.Code;
+        }
+        else
+        {
+            //Send Email with code
+            subject = "Food Waste: Código de recuperación de contraseña";
+            msg1 = "Estimado/a usuario: \n\nTu código de confirmación para restaurar tu contraseña es: " + code.Code;
+            msg2 = "Estimado/a usuario: <br><br>Tu código de confirmación para restaurar tu contraseña es: " + code.Code;
+        }
+        await MailService.SendEmailAsync(user.Email, subject, msg1, msg2);
+    }
+}

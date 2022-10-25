@@ -1,0 +1,34 @@
+﻿@*
+-Los Macacos
+
+Collaborators:
+- Josher Ramirez
+- Sirlany Mora
+- Aaron Campos
+- Estefany Ramirez
+- David Rojas
+
+*@
+@inject NavigationManager _navigationManager
+<MudDialog>
+    <DialogContent>
+        <MudAlert Severity="Severity.Error">Donacion no entregada</MudAlert>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Href = "" Color="Color.Info" OnClick="submitt">Aceptar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+    void Cancel() => MudDialog.Cancel();
+
+    private void submitt()
+    {
+       MudDialog.Close(DialogResult.Ok(true));
+       _navigationManager.NavigateTo("", true);
+
+    } 
+}

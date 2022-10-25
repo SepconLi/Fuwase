@@ -1,0 +1,79 @@
+﻿@* Project includes *@
+@using Application
+@using Application.Statistics
+@using Domain.Core.ValueObjects
+@using Domain.Statistics.Entities
+@using Presentation.Core.Models
+@using Presentation.Statistics.Components
+@using Presentation.Core.Components
+
+@* System includes *@
+@using LanguageExt
+@using Microsoft.AspNetCore.Components
+@using System.Globalization
+@using Newtonsoft.Json
+@using Syncfusion.Blazor.Maps
+
+@inject IStatisticService StatisticService
+@if (_isLoading)
+{
+<h1>Loading...</h1>    
+
+} else{
+    <SfMaps Width="1250px" Height="1500px" >
+            <MapsTitleSettings Text="Donaciones por provincia" Description="Maps" Alignment="Alignment.Center" >
+                <MapsTitleTextStyle Color="Black" Size="36px" FontFamily="Segoe UI" FontWeight="bold">
+                </MapsTitleTextStyle>
+            </MapsTitleSettings>
+        <MapsZoomSettings Enable="false" ZoomFactor="1"/>
+            <MapsLegendSettings Visible="true" Position="LegendPosition.Top" Alignment="Alignment.Center" Height="1%" Width="80%" Mode="LegendMode.Interactive" ShapePadding="100">
+                    <MapsLegendTitle Text="Donaciones"/>
+                    <MapsLegendTitleStyle Size="18px" FontFamily="Segoe UI" />
+                <MapsLegendTextStyle FontFamily="Segoe UI"></MapsLegendTextStyle>
+            </MapsLegendSettings>
+        <MapsLayers >
+            <MapsLayer ShapeData="MapShapeData" DataSource="Provinces" TValue="ProvinceStats" ShapeDataPath="Name" ShapePropertyPath='new string[] {"name"}'>
+                 <MapsShapeSettings Fill="#E5E5E5" ColorValuePath="Donations" >
+                     <MapsShapeBorder Color="black" Width="1"></MapsShapeBorder>
+                    <MapsShapeColorMappings>
+                            <MapsShapeColorMapping StartRange="@ColorMappingFromOne" EndRange="@ColorMappingToOne" Color="@ColorMappingColorOne" Label="@ColorMappingLabelOne" Value="@ColorMappingValueOne" />
+                    </MapsShapeColorMappings>
+                </MapsShapeSettings>
+                     <MapsLayerTooltipSettings Visible="true" ValuePath="State" Format="<b> ${Name} <br> Donaciones : ${Donations}">
+                        <MapsLayerTooltipTextStyle Color="white"  FontFamily="Segoe UI"></MapsLayerTooltipTextStyle>
+                    </MapsLayerTooltipSettings>
+            </MapsLayer>
+        </MapsLayers>
+    </SfMaps>
+}
+
+@code {
+    bool _isLoading = true;
+    public int MaxDonations;
+    public object MapShapeData;
+    public IEnumerable<ProvinceStats>? Provinces;
+    public double? ColorMappingFromOne = 0;
+    public double? ColorMappingToOne = 100;
+    public string[] ColorMappingColorOne = new string[] {"white","green"};
+    public string ColorMappingLabelOne = null;
+    public string ColorMappingValueOne = null;
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await Task.Delay(500);
+        string fileText = System.IO.File.ReadAllText("../Presentation/Statistics/Components/CR.json");
+        MapShapeData = JsonConvert.DeserializeObject(fileText);
+        await LoadProvinces();
+        await getMax();
+        ColorMappingToOne = MaxDonations;
+        _isLoading = false;
+    }
+    public async Task LoadProvinces()
+    {
+        Provinces = await StatisticService.GetProvincesStats();
+    }
+    private async Task getMax()
+    {
+        MaxDonations = Provinces.Max(x => x.Donations);
+    }
+}

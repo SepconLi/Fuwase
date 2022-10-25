@@ -1,0 +1,20 @@
+﻿@using Presentation.Orders.Components;
+
+@code {
+
+	[Fact]
+	public void CardDisplaysCorrectText()
+	{
+		// Arrange
+		var context = new TestContext();
+
+		// Act
+		var cut = context.Render(
+			@<DonationUbicCard Provincia="Cartago" Canton="Cartago" Distrito="Paraiso"></DonationUbicCard>
+		);
+
+		// Assert
+		cut.Markup.Should().Contain("Paraiso, Cartago, Cartago, Costa Rica");
+	}
+
+}

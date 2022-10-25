@@ -1,0 +1,28 @@
+﻿@*
+-Los Macacos
+
+Collaborators:
+- Josher Ramirez
+- Sirlany Mora
+- Aaron Campos
+- Estefany Ramirez
+- David Rojas
+
+- Summary: component that shows that the donation request was sent successfully
+*@
+<MudDialog>
+    <DialogContent>
+        <MudAlert Severity="Severity.Success">La solicitud de donacion fue enviada con éxito.</MudAlert>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Href="../" Color = "Color.Success" OnClick="Cancel">Aceptar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    void Cancel() => MudDialog.Cancel();
+}
+

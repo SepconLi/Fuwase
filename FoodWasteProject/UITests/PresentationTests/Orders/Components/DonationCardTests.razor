@@ -1,0 +1,18 @@
+﻿@using Presentation.Orders.Components;
+
+@code {
+	[Fact]
+	public void DonationCardDisplaysTheParameters()
+	{
+		// Arrange
+		var context = new TestContext();
+
+		// Act
+		var cut = context.Render(
+			@<DonationCard Description = "Test description" Name="Test" Provincia="San Jose" CreationDate=System.DateTime.Now ProductsCount=1 ></DonationCard>
+		);
+
+		// Assert
+		cut.Markup.Should().Contain("Test description");
+	}
+}

@@ -1,0 +1,158 @@
+﻿@* 
+This document is for the US: ALV-DO-2.2 Complete view of active donation
+It was done by Daniela Murillo (ALV)
+
+We reused some of the elements used in the page DonationDetails
+from Orders created my the team MC.
+*@
+
+@* Project includes *@
+@using Application.Authentication
+@using Application.Donations
+@using Application.Products
+@using Application.Users
+
+@using Domain.Donations.DTOs
+@using Domain.Donations.Entities
+@using Domain.Products.Entities
+@using Presentation.Products.Models
+@using Presentation.Orders.Components
+@using Presentation.Donations.Components
+
+@* System includes *@
+@using MudBlazor
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Mvc.RazorPages
+
+@* URL to enter this page *@
+@page "/history/donation/{donationId:int?}"
+
+@* Injecting project services *@
+@inject IDonationService DonationService
+@inject IAuthenticationService AuthenticationService
+@inject IProductService ProductService
+
+@* Using CSS style sheet *@
+<link href="/css/components/Card.css" rel="stylesheet" />
+
+@* Check if the components are  loading  *@
+@if (_isLoading)
+{
+    <LoadingCardsComponent></LoadingCardsComponent>
+}else
+{
+    <center>
+    <div Class="d-inline-flex pa-4">
+        <!-- Return to history button-->
+        <div style="width:9%; margin: 16px 10px;">
+            <MudButton StartIcon="@Icons.Filled.ArrowBack"
+                Size="Size.Large" Href="/history"
+            ></MudButton>
+        </div>
+
+        <div style="width:90%;">
+            <div class="d-block pa-2">
+                <div class="card d-block pa-8 justify-start" style="width:100%; align-items:center;">
+                    <div class="d-inline-flex" style="width: fit-content; align-items:center;">
+                        <!-- Description-->
+                        <div style="width: 100%; margin-right: 15px;">
+                            <h1>@_donation.Description</h1>
+                        </div>
+                        <!-- Status tag -->
+                        <div>
+                            <DonationStatusTag
+                                _status="@_donation.Status"
+                            ></DonationStatusTag>
+                        </div>
+                    </div>
+                    <!-- Code and creation date-->
+                    <div style="margin-top: 7px;">
+                        <MudText> Código de donación: @donationId</MudText>
+                        <MudText>Fecha de creación: @_donation.CreationDate.ToString("dd/MM/yyyy")</MudText>
+                    </div>
+                    <!--Show the donation location-->
+                    <div style="margin-top: 7px;">
+                        <MudButton StartIcon=@Icons.Filled.LocationOn 
+                            Href="@getLink(_donation.Province,_donation.County,_donation.District)"
+                            Target="_blank" >
+                            @_donation.District, @_donation.County, @_donation.Province, Costa Rica
+                        </MudButton>
+                    </div>
+                    <!-- Add deletion button if donation is fresh-->
+                    @if (_donation.Status == "A")
+                    {
+                        <div style="margin-top: 7px; text-align: right;">
+                            <DeleteDonationButton
+                                _donationId="@donationId"
+                                _description="@_donation.Description"
+                            ></DeleteDonationButton>
+                        </div>
+                    }
+                </div>
+                <!-- Pruducts title -->
+                <div style="margin-top:45px">
+                    <h2 style="text-align:center">Productos de la donación</h2>
+                    <!-- Create a card to each product in the donation-->
+                    @foreach(var model in productModels)
+                    {
+                        <!--only shows products that aren't expired-->
+                        @if (model.Expiration > DateTime.Today)
+                        {
+                            <div align="center">
+                                <ProductCard Product="@model"></ProductCard>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    </center>
+}
+   
+@code {
+    [Parameter]
+    public int donationId { get; set; }
+
+    // Product models to iterate and create cards and checkboxes
+    private List<ProductModel> productModels = new List<ProductModel>();
+    private bool _isLoading = true;
+    private IReadOnlyCollection<Product>? _products;
+    private Donation? _donation;
+
+    // Initialize donation fields
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDonation();
+    }
+
+    // Loading donation information
+    private async Task LoadDonation()
+    {
+        _donation = await DonationService.GetByIdAsync(donationId);
+        _products = _donation!.Products;
+        foreach(var productItem in _products)
+        {
+            ProductModel Model = new ProductModel(productItem.Id, productItem.Name,
+                productItem.FoodType, productItem.ProductType,
+                productItem.Quantity, productItem.Weight, productItem.Brand!, 
+                productItem.ExpirationDate,  productItem.Restrictions.ToList(),
+                productItem.Image!, productItem.DonationId);
+            productModels.Add(Model);
+        }    
+        _isLoading = false;
+    }
+
+    // Gets the donor's email
+    private async Task<string?> getActualUser()
+    {
+        await AuthenticationService.GetValueAsync();
+        return await AuthenticationService.GetLoggedUserEmail();
+    }
+
+    public string getLink(String provincia, String canton, String distrito)
+    {
+        return "https://www.google.com/maps/place/"+provincia+"+"+canton+"+"+distrito;
+    }
+}
+

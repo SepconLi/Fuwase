@@ -1,0 +1,88 @@
+﻿<!--
+This document is for the EPIC ALV-DO-3 Statistics
+-->
+@* Project includes *@
+@using Application
+@using Application.Statistics
+@using Domain.Core.ValueObjects
+@using Domain.Statistics.Entities
+@using Presentation.Core.Models
+@using Presentation.Statistics.Components
+@using Presentation.Core.Components
+@using Application.Users
+@using Application.Users.Implementations
+@using Domain.Users.Repositories
+@using Domain.Users.Entities
+@using Application.Authentication
+
+@* System includes *@
+@using LanguageExt
+@using Microsoft.AspNetCore.Components
+@using System.Globalization
+
+@* Injecting project services *@
+@inject IStatisticService StatisticService
+@inject IClientService ClientService
+@inject IUserService UserService
+@inject IAuthenticationService AuthenticationService
+
+@page "/userStatistics"
+@* Including Card style sheet *@
+<link href="/css/components/Card.css" rel="stylesheet" />
+
+@if (_isLoading)
+{
+    <h1>Loading...</h1>
+} else {
+        <h1 style="margin-top:20px ; margin-bottom: 20px" align="center">Estadísticas</h1>
+        <h2 style="margin-top:20px ; margin-bottom: 20px" align="center">@user.UserName</h2>
+
+
+    @* <div class="d-flex flex-grow-1 gap-4 my-4 justify-center">
+        <MudCard Class="flex-none py-8" Width="312px" Elevation="0"> 
+            <MudText Typo="Typo.h4" Align="Align.Center" Style="">@statistics.App_Total_Donations</MudText>
+        <MudText Typo="Typo.h5" Align="Align.Center">Total de donaciones en FoodWaste</MudText>
+        </MudCard>    
+    </div>*@
+        
+        <div class="d-flex flex-grow-1 gap-4 my-4 justify-center">
+        <MudCard Class="flex-none py-8" Width="312px" Elevation="0"> 
+             <MudText Typo="Typo.h4" Align="Align.Center" Style="">@statistics.Donation_Amount</MudText>
+            <MudText Typo="Typo.h5" Align="Align.Center">Donaciones</MudText>
+        </MudCard>
+        <MudCard Class="flex-none py-8" Width="312px" Elevation="0">
+                <MudText Typo="Typo.h4" Align="Align.Center">@statistics.Donated_Weight kg</MudText>
+            <MudText Typo="Typo.h5" Align="Align.Center">Peso donado</MudText>
+        </MudCard>
+          <MudCard Class="flex-none py-8" Width="312px" Elevation="0">
+                <MudText Typo="Typo.h4" Align="Align.Center">@statistics.Order_Amount</MudText>
+            <MudText Typo="Typo.h5" Align="Align.Center">Recibidas</MudText>
+        </MudCard>
+    </div>
+    <Leaderboard></Leaderboard>  
+    <br />
+    <br />
+    <br />
+    <Heatmap></Heatmap>
+}
+
+@code {
+    public Statistic? statistics;
+    public User? user;
+    private bool _isLoading = true;
+    public string? UserEmail { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthenticationService.GetValueAsync();
+        UserEmail = await AuthenticationService.GetLoggedUserEmail();
+        await LoadStatistics();
+        _isLoading = false;
+    }
+
+    public async Task LoadStatistics()
+    {
+        user = await UserService.GetUserByEmail(UserEmail);
+        statistics = await StatisticService.GetStatisticsByUserIdAsync(UserEmail);
+    }
+}

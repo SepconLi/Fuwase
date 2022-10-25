@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Core\Components\RegistrationForm.razor" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="Blazored.FluentValidation" Version="2.0.3" />
+    <PackageReference Include="Blazored.LocalStorage" Version="4.2.0" />
+    <PackageReference Include="bunit" Version="1.9.8" />
+    <PackageReference Include="BlazorGoogleMaps" Version="2.2.1" />
+    <PackageReference Include="GoogleMaps.LocationServices" Version="1.2.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Forms" Version="6.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.6" />
+    <PackageReference Include="MudBlazor" Version="6.0.10" />
+    <PackageReference Include="MudBlazor" Version="6.0.10" />
+    <PackageReference Include="Syncfusion.Blazor.Maps" Version="19.4.0.56" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+  </ItemGroup>  
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Products\Pages\ProductsList.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Products\Pages\ProductsList.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Campaigns\Pages\CampaignList.razor" />
+    <None Include="Orders\Components\DonationCard.razor" />
+    <None Include="Orders\Components\DonationRequestDialog.razor" />
+    <None Include="Orders\Components\DonationUbicCard.razor" />
+    <None Include="Orders\Components\DonorInfoCard.razor" />
+    <None Include="Orders\Components\LoadingCardsComponent.razor" />
+    <None Include="Orders\Pages\DonationDetails.razor" />
+    <None Include="Orders\Pages\DonationList.razor" />
+
+
+  </ItemGroup>
+	
+	<ItemGroup>
+        <Folder Include="Chats\Components\" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Users\Components\" />
+  </ItemGroup>
+
+</Project>

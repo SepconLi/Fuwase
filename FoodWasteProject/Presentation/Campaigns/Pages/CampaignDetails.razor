@@ -1,0 +1,135 @@
+﻿<!-----------------------------------------------------------------------------
+This document is for the US:
+    - Fabian Gonzalez
+    - Ximena Gdur
+    And was done by a joint effort of members of ALV and IB.
+-------------------------------------------------------------------------------
+    Displays a all information associated with a campaign 
+    created by a corporate user.
+------------------------------------------------------------------------------>
+
+@* Project includes *@
+@using Application.Authentication
+@using Application.Users
+@using Presentation.Campaigns.Components
+@using Presentation.Campaigns.Models
+@using Presentation.Core.Components
+@using Presentation.Orders.Components
+@using Domain.Campaigns.Entities;
+@using Domain.Campaigns.DTOs;
+@using Domain.Campaigns.Repositories;
+@using Application.Campaigns;
+
+@* System includes *@
+@using MudBlazor
+@using Microsoft.AspNetCore.Components.Authorization
+
+@* Injecting project services *@
+@inject ICampaignService CampaignService
+@inject ICampaignProductService CampaignProductService
+@inject IDialogService DialogService
+@inject IAuthenticationService AuthenticationService
+
+@* Using CSS style sheet *@
+<link href="/css/components/Card.css" rel="stylesheet" />
+
+@page "/campaignDetails/{campaignId:int}"
+
+@* Check if the components are  loading  *@
+@if (_isLoading)
+{
+    <LoadingCardsComponent></LoadingCardsComponent>
+}
+else
+{
+    <MudContainer Class="align-self-center py-4 flex-1 mt-5" MaxWidth="MaxWidth.Medium">
+        <MudPaper Class="d-flex pa-4 mb-2 flex-wrap gap-y-4 justify-center" Elevation="6">
+             @* TITLE and PROGRESS *@
+             <br>
+             <div class="text-center">
+                 <h1> @campaign!.Name </h1>
+                 <h4> Código de Campaña: @campaignId </h4>
+             </div>
+             <br>
+             <MudContainer>
+                <CampaignProgress campaign=@campaign></CampaignProgress>
+             </MudContainer>
+             @* DESCRIPTION *@
+             <h4>  <b> Descripción </b> </h4>
+             <MudContainer Class="d-flex gap-15">
+                <h5> @campaign.Description </h5>
+             </MudContainer>
+             @* DATES *@
+             <MudContainer Class="d-flex gap-15">
+                <div>
+                    <h5> 
+                        <b> Fecha de Inicio: </b> 
+                        @campaign.StartDate!.Value.Date.ToShortDateString() 
+                    </h5>
+                    <h5>
+                        <b> Fecha de Finalización: </b>
+                        @campaign.EndDate!.Value.Date.ToShortDateString()
+                    </h5>
+                </div>
+             </MudContainer>
+             @* CAMPAIGN PRODUCTS *@
+             <MudGrid Class="mx-auto pa-8" Justify="Justify.Center">
+                <div>
+                    <div style="margin-top:15px">
+                        <h2 style="text-align:center">Productos de la Campaña</h2>
+                    </div>
+                     @foreach (var campaignProduct in _campaignProducts!) { 
+                        <CampaignProductCard CampaignProduct=@campaignProduct> </CampaignProductCard>
+                     }
+                     
+                </div>
+             </MudGrid>
+             @* DONATE AND RECEIVE *@
+             <center>
+             <MudContainer Class="d-flex gap-15" Height="200px">
+                <MudButton Size="Size.Large" Variant="Variant.Filled" Style="background-color: #01579B; color: white; width: 200px"
+                    Href="@getDonatePageLink(campaignId)" Disabled="true"> Donar </MudButton>
+                <MudButton Size="Size.Large" Variant="Variant.Filled" Style="background-color: #42A5F5; color: white; width: 200px"
+                    Href="@getReceivePageLink(campaignId)" Disabled="true"> Recibir </MudButton>
+             </MudContainer>
+             </center>
+        </MudPaper>
+    </MudContainer>
+    <br/>
+}
+   
+@code {
+    [Parameter]
+    public int campaignId { get; set; }
+    private bool _isLoading = true;
+    public Campaign? campaign = new Campaign();
+    private IList<CampaignProductDTO>? _campaignProducts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await loadCampaign();
+        await loadCampaignProducts();
+        _isLoading = false;
+    }
+
+    private async Task loadCampaign()
+    {
+        campaign = await CampaignService.GetByIdAsync(campaignId);
+    }
+
+    private async Task loadCampaignProducts()
+    {
+        _campaignProducts = await CampaignProductService.GetCampaignProductByIdAsync(campaign!.Id);
+    }
+
+    private string getReceivePageLink(int id)
+    {
+        return "/campaignOrder/"+ campaignId;
+    }
+
+    private string getDonatePageLink(int id)
+    {
+        // TODO: Change this for the true page
+        return "/campaignDetails/"+ campaignId;
+    }
+}
