@@ -11,6 +11,7 @@ using FluentAssertions;
 using Application.Statistics.Implementations;
 using Domain.Core.Helpers;
 using Domain.Core.ValueObjects;
+using Domain.Statistics.DTOs;
 using Domain.Statistics.Entities;
 using Domain.Statistics.Repositories;
 using Moq;
