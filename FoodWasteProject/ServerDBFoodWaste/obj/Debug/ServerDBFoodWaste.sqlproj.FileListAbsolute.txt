@@ -1,0 +1,10 @@
+E:\CodigoVS\Proyecto4\FoodWasteProject\ServerDBFoodWaste\bin\Debug\ServerDBFoodWaste.dacpac
+E:\CodigoVS\Proyecto4\FoodWasteProject\ServerDBFoodWaste\bin\Debug\ServerDBFoodWaste.dll
+E:\CodigoVS\Proyecto4\FoodWasteProject\ServerDBFoodWaste\bin\Debug\ServerDBFoodWaste.pdb
+E:\CodigoVS\Proyecto4\FoodWasteProject\ServerDBFoodWaste\obj\Debug\ServerDBFoodWaste.sqlproj.AssemblyReference.cache
+E:\CodigoVS\Proyecto4\FoodWasteProject\ServerDBFoodWaste\obj\Debug\ServerDBFoodWaste.dll
+E:\CodigoVS\Proyecto4\FoodWasteProject\ServerDBFoodWaste\obj\Debug\ServerDBFoodWaste.pdb
+E:\CodigoVS\Proyecto4\FoodWasteProject\ServerDBFoodWaste\obj\Debug\Model.xml
+E:\CodigoVS\Proyecto4\FoodWasteProject\ServerDBFoodWaste\obj\Debug\refactor.xml
+E:\CodigoVS\Proyecto4\FoodWasteProject\ServerDBFoodWaste\obj\Debug\postdeploy.sql
+E:\CodigoVS\Proyecto4\FoodWasteProject\ServerDBFoodWaste\obj\Debug\predeploy.sql

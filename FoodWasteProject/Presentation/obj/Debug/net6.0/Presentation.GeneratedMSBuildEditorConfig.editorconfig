@@ -1,0 +1,392 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property._SupportedPlatformList = Linux,macOS,Windows,browser
+build_property.RootNamespace = Presentation
+build_property.RootNamespace = Presentation
+build_property.ProjectDir = F:\CodigoVS\cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37\FoodWasteProject\Presentation\
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = F:\CodigoVS\cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37\FoodWasteProject\Presentation
+build_property._RazorSourceGeneratorDebug = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Campaigns/Components/CampaignCard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q2FtcGFpZ25zXENvbXBvbmVudHNcQ2FtcGFpZ25DYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Campaigns/Components/CampaignProductCard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q2FtcGFpZ25zXENvbXBvbmVudHNcQ2FtcGFpZ25Qcm9kdWN0Q2FyZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Campaigns/Components/CampaignProductsList.razor]
+build_metadata.AdditionalFiles.TargetPath = Q2FtcGFpZ25zXENvbXBvbmVudHNcQ2FtcGFpZ25Qcm9kdWN0c0xpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Campaigns/Components/CampaignProgress.razor]
+build_metadata.AdditionalFiles.TargetPath = Q2FtcGFpZ25zXENvbXBvbmVudHNcQ2FtcGFpZ25Qcm9ncmVzcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Campaigns/Components/PopupCampaignInformation.razor]
+build_metadata.AdditionalFiles.TargetPath = Q2FtcGFpZ25zXENvbXBvbmVudHNcUG9wdXBDYW1wYWlnbkluZm9ybWF0aW9uLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Campaigns/Components/PopupCampaignProduct.razor]
+build_metadata.AdditionalFiles.TargetPath = Q2FtcGFpZ25zXENvbXBvbmVudHNcUG9wdXBDYW1wYWlnblByb2R1Y3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Campaigns/Pages/CampaignDetails.razor]
+build_metadata.AdditionalFiles.TargetPath = Q2FtcGFpZ25zXFBhZ2VzXENhbXBhaWduRGV0YWlscy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Campaigns/Pages/CampaignList.razor]
+build_metadata.AdditionalFiles.TargetPath = Q2FtcGFpZ25zXFBhZ2VzXENhbXBhaWduTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Campaigns/Pages/CampaignOrder.razor]
+build_metadata.AdditionalFiles.TargetPath = Q2FtcGFpZ25zXFBhZ2VzXENhbXBhaWduT3JkZXIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Campaigns/Pages/CampaignRegistration.razor]
+build_metadata.AdditionalFiles.TargetPath = Q2FtcGFpZ25zXFBhZ2VzXENhbXBhaWduUmVnaXN0cmF0aW9uLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Chats/Components/MapLocation.razor]
+build_metadata.AdditionalFiles.TargetPath = Q2hhdHNcQ29tcG9uZW50c1xNYXBMb2NhdGlvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Chats/Components/SendImageDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q2hhdHNcQ29tcG9uZW50c1xTZW5kSW1hZ2VEaWFsb2cucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Chats/Components/SendLocationDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q2hhdHNcQ29tcG9uZW50c1xTZW5kTG9jYXRpb25EaWFsb2cucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Chats/Components/UploadPictureChat.razor]
+build_metadata.AdditionalFiles.TargetPath = Q2hhdHNcQ29tcG9uZW50c1xVcGxvYWRQaWN0dXJlQ2hhdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Chats/Pages/ChatRoom.razor]
+build_metadata.AdditionalFiles.TargetPath = Q2hhdHNcUGFnZXNcQ2hhdFJvb20ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Components/Alert.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxDb21wb25lbnRzXEFsZXJ0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Components/CeroNumberError.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxDb21wb25lbnRzXENlcm9OdW1iZXJFcnJvci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Components/DeleteConfirmationDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxDb21wb25lbnRzXERlbGV0ZUNvbmZpcm1hdGlvbkRpYWxvZy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Components/DialogMision.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxDb21wb25lbnRzXERpYWxvZ01pc2lvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Components/DialogVision.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxDb21wb25lbnRzXERpYWxvZ1Zpc2lvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Components/ExceedingValueError.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxDb21wb25lbnRzXEV4Y2VlZGluZ1ZhbHVlRXJyb3IucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Components/FWFooter.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxDb21wb25lbnRzXEZXRm9vdGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Components/Loading.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxDb21wb25lbnRzXExvYWRpbmcucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Components/LocationDropdown.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxDb21wb25lbnRzXExvY2F0aW9uRHJvcGRvd24ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Components/NegativeNumberError.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxDb21wb25lbnRzXE5lZ2F0aXZlTnVtYmVyRXJyb3IucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Components/NotLoggedIn.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxDb21wb25lbnRzXE5vdExvZ2dlZEluLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Components/RepeatedProductError.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxDb21wb25lbnRzXFJlcGVhdGVkUHJvZHVjdEVycm9yLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Components/RequiredFieldsError.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxDb21wb25lbnRzXFJlcXVpcmVkRmllbGRzRXJyb3IucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Components/SubmittedCorrectlyDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxDb21wb25lbnRzXFN1Ym1pdHRlZENvcnJlY3RseURpYWxvZy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Components/SubmittedProductDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxDb21wb25lbnRzXFN1Ym1pdHRlZFByb2R1Y3REaWFsb2cucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Components/WrongDateError.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxDb21wb25lbnRzXFdyb25nRGF0ZUVycm9yLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Layout/Header.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxMYXlvdXRcSGVhZGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Pages/About.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxQYWdlc1xBYm91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxQYWdlc1xJbmRleC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Pages/Refresh.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxQYWdlc1xSZWZyZXNoLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Donations/Components/DeleteDonationButton.razor]
+build_metadata.AdditionalFiles.TargetPath = RG9uYXRpb25zXENvbXBvbmVudHNcRGVsZXRlRG9uYXRpb25CdXR0b24ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Donations/Components/DonationCard.razor]
+build_metadata.AdditionalFiles.TargetPath = RG9uYXRpb25zXENvbXBvbmVudHNcRG9uYXRpb25DYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Donations/Components/DonationStatusTag.razor]
+build_metadata.AdditionalFiles.TargetPath = RG9uYXRpb25zXENvbXBvbmVudHNcRG9uYXRpb25TdGF0dXNUYWcucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Donations/Components/PopupInformation.razor]
+build_metadata.AdditionalFiles.TargetPath = RG9uYXRpb25zXENvbXBvbmVudHNcUG9wdXBJbmZvcm1hdGlvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Donations/Components/PopupProduct.razor]
+build_metadata.AdditionalFiles.TargetPath = RG9uYXRpb25zXENvbXBvbmVudHNcUG9wdXBQcm9kdWN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Donations/Components/PopUpSkeleton.razor]
+build_metadata.AdditionalFiles.TargetPath = RG9uYXRpb25zXENvbXBvbmVudHNcUG9wVXBTa2VsZXRvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Donations/Components/ProductsList.razor]
+build_metadata.AdditionalFiles.TargetPath = RG9uYXRpb25zXENvbXBvbmVudHNcUHJvZHVjdHNMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Donations/Pages/DonationDetails.razor]
+build_metadata.AdditionalFiles.TargetPath = RG9uYXRpb25zXFBhZ2VzXERvbmF0aW9uRGV0YWlscy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Donations/Pages/DonationRegistration.razor]
+build_metadata.AdditionalFiles.TargetPath = RG9uYXRpb25zXFBhZ2VzXERvbmF0aW9uUmVnaXN0cmF0aW9uLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Donations/Pages/History.razor]
+build_metadata.AdditionalFiles.TargetPath = RG9uYXRpb25zXFBhZ2VzXEhpc3RvcnkucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Notifications/Components/NotificationDatils.razor]
+build_metadata.AdditionalFiles.TargetPath = Tm90aWZpY2F0aW9uc1xDb21wb25lbnRzXE5vdGlmaWNhdGlvbkRhdGlscy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Notifications/Pages/NotificationList.razor]
+build_metadata.AdditionalFiles.TargetPath = Tm90aWZpY2F0aW9uc1xQYWdlc1xOb3RpZmljYXRpb25MaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Components/BeneficiaryInfoCard.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXENvbXBvbmVudHNcQmVuZWZpY2lhcnlJbmZvQ2FyZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Components/DeliveryAccept.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXENvbXBvbmVudHNcRGVsaXZlcnlBY2NlcHQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Components/DeliveryCancel.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXENvbXBvbmVudHNcRGVsaXZlcnlDYW5jZWwucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Components/DeliveryOrderComponent.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXENvbXBvbmVudHNcRGVsaXZlcnlPcmRlckNvbXBvbmVudC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Components/DonationCard.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXENvbXBvbmVudHNcRG9uYXRpb25DYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Components/DonationRequest.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXENvbXBvbmVudHNcRG9uYXRpb25SZXF1ZXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Components/DonationRequestAccepted.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXENvbXBvbmVudHNcRG9uYXRpb25SZXF1ZXN0QWNjZXB0ZWQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Components/DonationRequestDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXENvbXBvbmVudHNcRG9uYXRpb25SZXF1ZXN0RGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Components/DonationRequestRejected.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXENvbXBvbmVudHNcRG9uYXRpb25SZXF1ZXN0UmVqZWN0ZWQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Components/DonationRequestSent.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXENvbXBvbmVudHNcRG9uYXRpb25SZXF1ZXN0U2VudC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Components/DonationUbicCard.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXENvbXBvbmVudHNcRG9uYXRpb25VYmljQ2FyZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Components/DonorInfoCard.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXENvbXBvbmVudHNcRG9ub3JJbmZvQ2FyZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Components/LoadingCardsComponent.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXENvbXBvbmVudHNcTG9hZGluZ0NhcmRzQ29tcG9uZW50LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Pages/DonationDetails.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXFBhZ2VzXERvbmF0aW9uRGV0YWlscy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Pages/DonationList.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXFBhZ2VzXERvbmF0aW9uTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Pages/DonationRInfo.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXFBhZ2VzXERvbmF0aW9uUkluZm8ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Pages/OrderSummary.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXFBhZ2VzXE9yZGVyU3VtbWFyeS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Pages/ReceiverListD.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXFBhZ2VzXFJlY2VpdmVyTGlzdEQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Pages/RequestDetails.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXFBhZ2VzXFJlcXVlc3REZXRhaWxzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Orders/Pages/RequestList.razor]
+build_metadata.AdditionalFiles.TargetPath = T3JkZXJzXFBhZ2VzXFJlcXVlc3RMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Products/Components/FiltersCard.razor]
+build_metadata.AdditionalFiles.TargetPath = UHJvZHVjdHNcQ29tcG9uZW50c1xGaWx0ZXJzQ2FyZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Products/Components/OrderProductCampaignCard.razor]
+build_metadata.AdditionalFiles.TargetPath = UHJvZHVjdHNcQ29tcG9uZW50c1xPcmRlclByb2R1Y3RDYW1wYWlnbkNhcmQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Products/Components/PopupAllergensFilter.razor]
+build_metadata.AdditionalFiles.TargetPath = UHJvZHVjdHNcQ29tcG9uZW50c1xQb3B1cEFsbGVyZ2Vuc0ZpbHRlci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Products/Components/ProductCard.razor]
+build_metadata.AdditionalFiles.TargetPath = UHJvZHVjdHNcQ29tcG9uZW50c1xQcm9kdWN0Q2FyZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Products/Pages/ProductsList.razor]
+build_metadata.AdditionalFiles.TargetPath = UHJvZHVjdHNcUGFnZXNcUHJvZHVjdHNMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Statistics/Components/Heatmap.razor]
+build_metadata.AdditionalFiles.TargetPath = U3RhdGlzdGljc1xDb21wb25lbnRzXEhlYXRtYXAucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Statistics/Components/Leaderboard.razor]
+build_metadata.AdditionalFiles.TargetPath = U3RhdGlzdGljc1xDb21wb25lbnRzXExlYWRlcmJvYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Statistics/Pages/UserStatistics.razor]
+build_metadata.AdditionalFiles.TargetPath = U3RhdGlzdGljc1xQYWdlc1xVc2VyU3RhdGlzdGljcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Users/Components/BusinessUserInfo_Form.razor]
+build_metadata.AdditionalFiles.TargetPath = VXNlcnNcQ29tcG9uZW50c1xCdXNpbmVzc1VzZXJJbmZvX0Zvcm0ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Users/Components/General_InfoUserForm.razor]
+build_metadata.AdditionalFiles.TargetPath = VXNlcnNcQ29tcG9uZW50c1xHZW5lcmFsX0luZm9Vc2VyRm9ybS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Users/Components/PasswordInput.razor]
+build_metadata.AdditionalFiles.TargetPath = VXNlcnNcQ29tcG9uZW50c1xQYXNzd29yZElucHV0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Users/Components/PersonalUserInfo_Form.razor]
+build_metadata.AdditionalFiles.TargetPath = VXNlcnNcQ29tcG9uZW50c1xQZXJzb25hbFVzZXJJbmZvX0Zvcm0ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Users/Components/UploadPicture.razor]
+build_metadata.AdditionalFiles.TargetPath = VXNlcnNcQ29tcG9uZW50c1xVcGxvYWRQaWN0dXJlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Users/Pages/BusinessUserProfile.razor]
+build_metadata.AdditionalFiles.TargetPath = VXNlcnNcUGFnZXNcQnVzaW5lc3NVc2VyUHJvZmlsZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Users/Pages/ConfirmationCodeForm.razor]
+build_metadata.AdditionalFiles.TargetPath = VXNlcnNcUGFnZXNcQ29uZmlybWF0aW9uQ29kZUZvcm0ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Users/Pages/EnterEmailForm.razor]
+build_metadata.AdditionalFiles.TargetPath = VXNlcnNcUGFnZXNcRW50ZXJFbWFpbEZvcm0ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Users/Pages/LogInPage.razor]
+build_metadata.AdditionalFiles.TargetPath = VXNlcnNcUGFnZXNcTG9nSW5QYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Users/Pages/PublicProfile.razor]
+build_metadata.AdditionalFiles.TargetPath = VXNlcnNcUGFnZXNcUHVibGljUHJvZmlsZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Users/Pages/RegistrationForm.razor]
+build_metadata.AdditionalFiles.TargetPath = VXNlcnNcUGFnZXNcUmVnaXN0cmF0aW9uRm9ybS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Users/Pages/ResetPasswordForm.razor]
+build_metadata.AdditionalFiles.TargetPath = VXNlcnNcUGFnZXNcUmVzZXRQYXNzd29yZEZvcm0ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Users/Pages/UserPreferences.razor]
+build_metadata.AdditionalFiles.TargetPath = VXNlcnNcUGFnZXNcVXNlclByZWZlcmVuY2VzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Users/Pages/UserProfile.razor]
+build_metadata.AdditionalFiles.TargetPath = VXNlcnNcUGFnZXNcVXNlclByb2ZpbGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Users/Pages/VerifyBusinessAccounts.razor]
+build_metadata.AdditionalFiles.TargetPath = VXNlcnNcUGFnZXNcVmVyaWZ5QnVzaW5lc3NBY2NvdW50cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Utilities/Pages/Redirect.razor]
+build_metadata.AdditionalFiles.TargetPath = VXRpbGl0aWVzXFBhZ2VzXFJlZGlyZWN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxMYXlvdXRcTWFpbkxheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-s348kqxa4h
+
+[F:/CodigoVS/cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37/FoodWasteProject/Presentation/Core/Layout/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29yZVxMYXlvdXRcTmF2TWVudS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-p2ga0oa75n

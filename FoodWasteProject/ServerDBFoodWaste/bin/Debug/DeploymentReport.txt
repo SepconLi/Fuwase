@@ -1,0 +1,153 @@
+﻿** Highlights
+     Tables that will be rebuilt
+       [dbo].[_User]
+       [dbo].[OrderProduct]
+       [dbo].[Product]
+       [dbo].[Restriction]
+     Clustered indexes that will be dropped
+       None
+     Clustered indexes that will be created
+       None
+     Possible data issues
+       The column [dbo].[Campaign].[County] is being dropped, data loss could occur.
+       The column [dbo].[Campaign].[CreatorEmail] is being dropped, data loss could occur.
+       The column [dbo].[Campaign].[Delivered] is being dropped, data loss could occur.
+       The column [dbo].[Campaign].[Description] is being dropped, data loss could occur.
+       The column [dbo].[Campaign].[District] is being dropped, data loss could occur.
+       The column [dbo].[Campaign].[EndDate] is being dropped, data loss could occur.
+       The column [dbo].[Campaign].[ExactLocation] is being dropped, data loss could occur.
+       The column [dbo].[Campaign].[Goal] is being dropped, data loss could occur.
+       The column [dbo].[Campaign].[Name] is being dropped, data loss could occur.
+       The column [dbo].[Campaign].[Province] is being dropped, data loss could occur.
+       The column [dbo].[Campaign].[Raised] is being dropped, data loss could occur.
+       The column [dbo].[Campaign].[StartDate] is being dropped, data loss could occur.
+       The column [dbo].[Campaign].[Status] is being dropped, data loss could occur.
+       The column [dbo].[Campaign].[Type] is being dropped, data loss could occur.
+       The column [dbo].[Campaign].[Campaign name] on table [dbo].[Campaign] must be added, but the column has no default value
+         and does not allow NULL values. If the table contains data, the ALTER script will not work. To avoid this issue you must
+         either: add a default value to the column, mark it as allowing NULL values, or enable the generation of smart-defaults
+         as a deployment option.
+       The column [dbo].[Campaign].[End date] on table [dbo].[Campaign] must be added, but the column has no default value and
+         does not allow NULL values. If the table contains data, the ALTER script will not work. To avoid this issue you must
+         either: add a default value to the column, mark it as allowing NULL values, or enable the generation of smart-defaults
+         as a deployment option.
+       The column [dbo].[Campaign].[Location] on table [dbo].[Campaign] must be added, but the column has no default value and
+         does not allow NULL values. If the table contains data, the ALTER script will not work. To avoid this issue you must
+         either: add a default value to the column, mark it as allowing NULL values, or enable the generation of smart-defaults
+         as a deployment option.
+       The column [dbo].[Campaign].[Start Date] on table [dbo].[Campaign] must be added, but the column has no default value
+         and does not allow NULL values. If the table contains data, the ALTER script will not work. To avoid this issue you must
+         either: add a default value to the column, mark it as allowing NULL values, or enable the generation of smart-defaults
+         as a deployment option.
+       The column [dbo].[OrderProduct].[ProductId] is being dropped, data loss could occur.
+       The column [dbo].[OrderProduct].[DonationId] on table [dbo].[OrderProduct] must be added, but the column has no default
+         value and does not allow NULL values. If the table contains data, the ALTER script will not work. To avoid this issue
+         you must either: add a default value to the column, mark it as allowing NULL values, or enable the generation of
+         smart-defaults as a deployment option.
+       The column [dbo].[OrderProduct].[ProductName] on table [dbo].[OrderProduct] must be added, but the column has no default
+         value and does not allow NULL values. If the table contains data, the ALTER script will not work. To avoid this issue
+         you must either: add a default value to the column, mark it as allowing NULL values, or enable the generation of
+         smart-defaults as a deployment option.
+       The column [dbo].[Product].[Id] is being dropped, data loss could occur.
+       The column [dbo].[Restriction].[ProductId] is being dropped, data loss could occur.
+       The column [dbo].[Restriction].[DonationId] on table [dbo].[Restriction] must be added, but the column has no default
+         value and does not allow NULL values. If the table contains data, the ALTER script will not work. To avoid this issue
+         you must either: add a default value to the column, mark it as allowing NULL values, or enable the generation of
+         smart-defaults as a deployment option.
+       The column [dbo].[Restriction].[ProductName] on table [dbo].[Restriction] must be added, but the column has no default
+         value and does not allow NULL values. If the table contains data, the ALTER script will not work. To avoid this issue
+         you must either: add a default value to the column, mark it as allowing NULL values, or enable the generation of
+         smart-defaults as a deployment option.
+
+** User actions
+     Drop
+       unnamed constraint on [dbo].[_User] (Default Constraint)
+       unnamed constraint on [dbo].[_User] (Default Constraint)
+       unnamed constraint on [dbo].[Product] (Default Constraint)
+       unnamed constraint on [dbo].[Product] (Default Constraint)
+       unnamed constraint on [dbo].[Product] (Default Constraint)
+       unnamed constraint on [dbo].[Product] (Default Constraint)
+       unnamed constraint on [dbo].[Campaign] (Default Constraint)
+       unnamed constraint on [dbo].[Campaign] (Default Constraint)
+       unnamed constraint on [dbo].[Administrator] (Foreign Key)
+       unnamed constraint on [dbo].[Client] (Foreign Key)
+       unnamed constraint on [dbo].[ConfirmationCode] (Foreign Key)
+       [dbo].[FK_OrderProduct_ToProduct] (Foreign Key)
+       [dbo].[FK_Restriction_ToProduct] (Foreign Key)
+       [dbo].[FK_Belongs_ToProduct] (Foreign Key)
+       [dbo].[FK_Campaign_ToCompany] (Foreign Key)
+     Table rebuild
+       [dbo].[_User] (Table)
+       [dbo].[OrderProduct] (Table)
+       [dbo].[Product] (Table)
+       [dbo].[Restriction] (Table)
+     Alter
+       [dbo].[Campaign] (Table)
+       [dbo].[AreAllProductsDonated] (Function)
+       [dbo].[GetProductsFromOrder] (Procedure)
+       [dbo].[SetDonationStatus] (Procedure)
+       [dbo].[SetProductQuantity] (Procedure)
+       [dbo].[get_top_business_donors] (Procedure)
+     Create
+       [dbo].[Statistic] (Table)
+       Default Constraint: unnamed constraint on [dbo].[Statistic] (Default Constraint)
+       Default Constraint: unnamed constraint on [dbo].[Statistic] (Default Constraint)
+       Default Constraint: unnamed constraint on [dbo].[Statistic] (Default Constraint)
+       [dbo].[FK_OrderProduct_ToProduct] (Foreign Key)
+       [dbo].[FK_Restriction_ToProduct] (Foreign Key)
+       [dbo].[FK_User_Id] (Foreign Key)
+       [dbo].[new_user_statistics] (Trigger)
+       [dbo].[top_businesses_update] (Trigger)
+       [dbo].[statistics_update] (Trigger)
+
+** Supporting actions
+     Drop
+       [dbo].[FK_OrderProduct_ToOrders] (Foreign Key)
+       [dbo].[FK_Product_ToDonation] (Foreign Key)
+       [dbo].[FK_Product_ToOrder] (Foreign Key)
+     Create
+       [dbo].[_User].[HASHEDEMAIL_INDEX] (Index)
+       Foreign Key: unnamed constraint on [dbo].[Administrator] (Foreign Key)
+       Foreign Key: unnamed constraint on [dbo].[Client] (Foreign Key)
+       Foreign Key: unnamed constraint on [dbo].[ConfirmationCode] (Foreign Key)
+       [dbo].[FK_OrderProduct_ToOrders] (Foreign Key)
+       [dbo].[FK_Product_ToDonation] (Foreign Key)
+       [dbo].[FK_Product_ToOrder] (Foreign Key)
+       [dbo].[chk_phn] (Check Constraint)
+       [dbo].[chk_role] (Check Constraint)
+       [dbo].[chk_status] (Check Constraint)
+     Refresh
+       [dbo].[get_donated_weight] (Procedure)
+       [dbo].[ClearProductsFromDonation] (Procedure)
+       [dbo].[GetAvailableProducts] (Procedure)
+
+The column [dbo].[Campaign].[County] is being dropped, data loss could occur.
+The column [dbo].[Campaign].[CreatorEmail] is being dropped, data loss could occur.
+The column [dbo].[Campaign].[Delivered] is being dropped, data loss could occur.
+The column [dbo].[Campaign].[Description] is being dropped, data loss could occur.
+The column [dbo].[Campaign].[District] is being dropped, data loss could occur.
+The column [dbo].[Campaign].[EndDate] is being dropped, data loss could occur.
+The column [dbo].[Campaign].[ExactLocation] is being dropped, data loss could occur.
+The column [dbo].[Campaign].[Goal] is being dropped, data loss could occur.
+The column [dbo].[Campaign].[Name] is being dropped, data loss could occur.
+The column [dbo].[Campaign].[Province] is being dropped, data loss could occur.
+The column [dbo].[Campaign].[Raised] is being dropped, data loss could occur.
+The column [dbo].[Campaign].[StartDate] is being dropped, data loss could occur.
+The column [dbo].[Campaign].[Status] is being dropped, data loss could occur.
+The column [dbo].[Campaign].[Type] is being dropped, data loss could occur.
+The column [dbo].[Campaign].[Campaign name] on table [dbo].[Campaign] must be added, but the column has no default value and does not allow NULL values. If the table contains data, the ALTER script will not work. To avoid this issue you must either: add a default value to the column, mark it as allowing NULL values, or enable the generation of smart-defaults as a deployment option.
+The column [dbo].[Campaign].[End date] on table [dbo].[Campaign] must be added, but the column has no default value and does not allow NULL values. If the table contains data, the ALTER script will not work. To avoid this issue you must either: add a default value to the column, mark it as allowing NULL values, or enable the generation of smart-defaults as a deployment option.
+The column [dbo].[Campaign].[Location] on table [dbo].[Campaign] must be added, but the column has no default value and does not allow NULL values. If the table contains data, the ALTER script will not work. To avoid this issue you must either: add a default value to the column, mark it as allowing NULL values, or enable the generation of smart-defaults as a deployment option.
+The column [dbo].[Campaign].[Start Date] on table [dbo].[Campaign] must be added, but the column has no default value and does not allow NULL values. If the table contains data, the ALTER script will not work. To avoid this issue you must either: add a default value to the column, mark it as allowing NULL values, or enable the generation of smart-defaults as a deployment option.
+The column [dbo].[OrderProduct].[ProductId] is being dropped, data loss could occur.
+The column [dbo].[OrderProduct].[DonationId] on table [dbo].[OrderProduct] must be added, but the column has no default value and does not allow NULL values. If the table contains data, the ALTER script will not work. To avoid this issue you must either: add a default value to the column, mark it as allowing NULL values, or enable the generation of smart-defaults as a deployment option.
+The column [dbo].[OrderProduct].[ProductName] on table [dbo].[OrderProduct] must be added, but the column has no default value and does not allow NULL values. If the table contains data, the ALTER script will not work. To avoid this issue you must either: add a default value to the column, mark it as allowing NULL values, or enable the generation of smart-defaults as a deployment option.
+The column [dbo].[Product].[Id] is being dropped, data loss could occur.
+The column [dbo].[Restriction].[ProductId] is being dropped, data loss could occur.
+The column [dbo].[Restriction].[DonationId] on table [dbo].[Restriction] must be added, but the column has no default value and does not allow NULL values. If the table contains data, the ALTER script will not work. To avoid this issue you must either: add a default value to the column, mark it as allowing NULL values, or enable the generation of smart-defaults as a deployment option.
+The column [dbo].[Restriction].[ProductName] on table [dbo].[Restriction] must be added, but the column has no default value and does not allow NULL values. If the table contains data, the ALTER script will not work. To avoid this issue you must either: add a default value to the column, mark it as allowing NULL values, or enable the generation of smart-defaults as a deployment option.
+If this deployment is executed, changes to [dbo].[OrderProduct] might introduce run-time errors in [dbo].[IsCompleteDonation].
+If this deployment is executed, changes to [dbo].[OrderProduct] might introduce run-time errors in [dbo].[UpdateQuantityForRejectOrder].
+If this deployment is executed, changes to [dbo].[Product] might introduce run-time errors in [dbo].[IsCompleteDonation].
+If this deployment is executed, changes to [dbo].[Product] might introduce run-time errors in [dbo].[UpdateQuantityForRejectOrder].
+
