@@ -1,7 +1,0 @@
-{
-  "Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "F:\\CodigoVS\\cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37\\FoodWasteProject\\Application",
-  "Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "F:\\CodigoVS\\cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37\\FoodWasteProject\\Domain",
-  "Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "F:\\CodigoVS\\cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37\\FoodWasteProject\\Infrastructure",
-  "Presentation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "F:\\CodigoVS\\cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37\\FoodWasteProject\\Presentation",
-  "ServerFoodWaste, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "F:\\CodigoVS\\cristian_quesadalopez-ecci_ci0128_i2022_g02_pi-20981f71ca37\\FoodWasteProject\\ServerFoodWaste"
-}

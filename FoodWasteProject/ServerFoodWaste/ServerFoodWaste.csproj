@@ -6,7 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>2559b2d6-11c5-4f03-a306-6a97de7466d8</UserSecretsId>
     <ApplicationIcon>wwwroot\favicon.ico</ApplicationIcon>
-    <UseRazorSourceGenerator>false</UseRazorSourceGenerator>
   </PropertyGroup>
 
   <ItemGroup>
