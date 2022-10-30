@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UseRazorSourceGenerator>false</UseRazorSourceGenerator>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +15,7 @@
   <ItemGroup>
     <SupportedPlatform Include="browser" />
   </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
